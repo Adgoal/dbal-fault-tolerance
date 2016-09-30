@@ -64,6 +64,11 @@ class Statement implements \IteratorAggregate, DriverStatement
                     $this->createStatement();
                     ++$attempt;
                     $retry = true;
+
+                    $this->conn->getLogger()->debug(
+                        '[DOCTRINE-STATEMENT][{function}] Retrying query (attempt {attempt}): {query}',
+                        ['function' => __FUNCTION__, 'attempt' => $attempt, 'query' => $this->sql]
+                    );
                 } else {
                     throw $e;
                 }

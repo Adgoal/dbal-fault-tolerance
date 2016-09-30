@@ -7,12 +7,19 @@ use Doctrine\DBAL\Driver;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Driver\ServerGoneAwayExceptionsAwareInterface;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * Class Connection.
  */
-class Connection extends \Doctrine\DBAL\Connection
+class Connection extends \Doctrine\DBAL\Connection implements LoggerAwareInterface
 {
+    
+    use LoggerAwareTrait;
+    
     /**
      * @var int
      */
@@ -51,6 +58,17 @@ class Connection extends \Doctrine\DBAL\Connection
     }
 
     /**
+     * @return LoggerInterface
+     */
+    public function getLogger()
+    {
+        if (!$this->logger) {
+            $this->logger = new NullLogger();
+        }
+        return $this->logger;
+    }
+
+    /**
      * @param string            $query
      * @param array             $params
      * @param array             $types
@@ -74,6 +92,11 @@ class Connection extends \Doctrine\DBAL\Connection
                     $this->close();
                     ++$attempt;
                     $retry = true;
+
+                    $this->getLogger()->debug(
+                        '[DOCTRINE][{function}] Retrying query (attempt {attempt}): {query}',
+                        ['function' => __FUNCTION__, 'attempt' => $attempt, 'query' => $query]
+                    );
                 } else {
                     throw $e;
                 }
@@ -117,6 +140,11 @@ class Connection extends \Doctrine\DBAL\Connection
                     $this->close();
                     ++$attempt;
                     $retry = true;
+
+                    $this->getLogger()->debug(
+                        '[DOCTRINE][{function}] Retrying query (attempt {attempt}): {query}',
+                        ['function' => __FUNCTION__, 'attempt' => $attempt, 'query' => count($args) ? $args[0] : '', 'args' => $args]
+                    );
                 } else {
                     throw $e;
                 }
@@ -149,6 +177,11 @@ class Connection extends \Doctrine\DBAL\Connection
                     $this->close();
                     ++$attempt;
                     $retry = true;
+
+                    $this->getLogger()->debug(
+                        '[DOCTRINE][{function}] Retrying query (attempt {attempt}): {query}',
+                        ['function' => __FUNCTION__, 'attempt' => $attempt, 'query' => $query]
+                    );
                 } else {
                     throw $e;
                 }
@@ -182,6 +215,11 @@ class Connection extends \Doctrine\DBAL\Connection
                     }
                     ++$attempt;
                     $retry = true;
+
+                    $this->getLogger()->debug(
+                        '[DOCTRINE][{function}] Retrying query (attempt {attempt}): {query}',
+                        ['function' => __FUNCTION__, 'attempt' => $attempt, 'query' => 'BEGIN TRANSACTION']
+                    );
                 } else {
                     throw $e;
                 }
