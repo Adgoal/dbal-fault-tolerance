@@ -323,6 +323,6 @@ class Connection extends \Doctrine\DBAL\Connection implements LoggerAwareInterfa
      */
     public function isUpdateQuery($query)
     {
-        return !preg_match('/^[\s\n\r\t(]*(select|show) /i', $query);
+        return !preg_match('/^[\s\n\r\t(]*(select|show|describe)[\s\n\r\t(]+/i', $query);
     }
 }

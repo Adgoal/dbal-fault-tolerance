@@ -19,7 +19,7 @@ trait ServerGoneAwayExceptionsAwareTrait
      * @var array
      */
     protected $goneAwayInUpdateExceptions = array(
-
+        'MySQL server has gone away',
     );
 
     /**

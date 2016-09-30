@@ -102,6 +102,7 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
             ['DELETE ', true],
             ['DELETE ', true],
             ['SELECT ', false],
+            ["\n\n\tSELECT\n", false],
             ['select ', false],
             ['(select ', false],
             [' (select ', false],
