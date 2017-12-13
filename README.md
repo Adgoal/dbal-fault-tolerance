@@ -1,6 +1,6 @@
-[![Latest Stable Version](https://poser.pugx.org/facile-it/doctrine-mysql-come-back/v/stable.svg)](https://packagist.org/packages/facile-it/doctrine-mysql-come-back) 
-[![Latest Unstable Version](https://poser.pugx.org/facile-it/doctrine-mysql-come-back/v/unstable.svg)](https://packagist.org/packages/facile-it/doctrine-mysql-come-back) 
-[![Total Downloads](https://poser.pugx.org/facile-it/doctrine-mysql-come-back/downloads.svg)](https://packagist.org/packages/facile-it/doctrine-mysql-come-back) 
+[![Latest Stable Version](https://poser.pugx.org/facile-it/doctrine-mysql-come-back/v/stable.svg)](https://packagist.org/packages/facile-it/doctrine-mysql-come-back)
+[![Latest Unstable Version](https://poser.pugx.org/facile-it/doctrine-mysql-come-back/v/unstable.svg)](https://packagist.org/packages/facile-it/doctrine-mysql-come-back)
+[![Total Downloads](https://poser.pugx.org/facile-it/doctrine-mysql-come-back/downloads.svg)](https://packagist.org/packages/facile-it/doctrine-mysql-come-back)
 
 [![Build status](https://travis-ci.org/facile-it/doctrine-mysql-come-back.svg)]( https://travis-ci.org/facile-it/doctrine-mysql-come-back)
 [![Scrutinizer score](https://scrutinizer-ci.com/g/facile-it/doctrine-mysql-come-back/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/facile-it/doctrine-mysql-come-back/?branch=master)
@@ -9,7 +9,7 @@
 [![License](https://poser.pugx.org/facile-it/doctrine-mysql-come-back/license.svg)](https://packagist.org/packages/facile-it/doctrine-mysql-come-back)
 # DoctrineMySQLComeBack
 
-Auto reconnect on Doctrine MySql has gone away exceptions on doctrine/dbal >=2.3,<2.7-dev.
+Auto reconnect on Doctrine MySql has gone away exceptions on doctrine/dbal >=2.3,<2.6-dev.
 
 # Installation
 
@@ -21,6 +21,8 @@ $ composer require facile-it/doctrine-mysql-come-back ^1.6
 
 In order to use DoctrineMySQLComeBack you have to set `wrapperClass` and `driverClass` connection params.
 You can choose how many times Doctrine should be able to reconnect, setting `x_reconnect_attempts` driver option. Its value should be an int.
+
+You can force ignore the transaction level using the parameters : `force_ignore_transaction_level`.
 
 An example of configuration at connection instantiation time:
 
@@ -41,7 +43,8 @@ $connectionParams = array(
     'wrapperClass' => 'Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Connection',
     'driverClass' => 'Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Driver\PDOMySql\Driver',
     'driverOptions' => array(
-        'x_reconnect_attempts' => 3
+        'x_reconnect_attempts' => 3,
+        'force_ignore_transaction_level': true
     )
 );
 
@@ -69,6 +72,7 @@ doctrine:
                 driver_class: 'Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Driver\PDOMySql\Driver'
                 options:
                     x_reconnect_attempts: 3
+                    force_ignore_transaction_level: true
 ```
 
 An example of configuration on Zend Framework 2/3 projects:
@@ -89,6 +93,7 @@ return [
                     'charset' => 'UTF8',
                     'driverOptions' => [
                         'x_reconnect_attempts' => 9,
+                        'force_ignore_transaction_level': true
                     ]
                 ],
             ],
@@ -99,7 +104,7 @@ return [
 
 # Usage
 
-To force a reconnection try after a long running task you can call 
+To force a reconnection try after a long running task you can call
 ```php
 $em->getConnection()->refresh();
 ```
