@@ -9,17 +9,22 @@ trait ServerGoneAwayExceptionsAwareTrait
 {
     /** @var string[] */
     protected $goneAwayExceptions = [
-        'MySQL server has gone away',
-        'Lost connection to MySQL server during query',
+        'MySQL server has gone away', //code 2006
+        'Lost connection to MySQL server during query', //code 2013
         'The MySQL server is running with the --read-only option so it cannot execute this statement',
-        'Connection refused'
+        'Connection refused',
+        'Lost connection to MySQL server during query', //code 2013
+        'Deadlock found when trying to get lock', //code 1213
+        'Lock wait timeout exceeded' //code 1205
     ];
 
     /** @var string[] */
     protected $goneAwayInUpdateExceptions = [
         'MySQL server has gone away',
         'The MySQL server is running with the --read-only option so it cannot execute this statement',
-        'Connection refused'
+        'Connection refused',
+        'Deadlock found when trying to get lock', //code 1213
+        'Lock wait timeout exceeded' //code 1205
     ];
 
     /**
