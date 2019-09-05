@@ -20,6 +20,9 @@
     "autoload": {
         "psr-4": { "Facile\\DoctrineMySQLComeBack\\Doctrine\\DBAL\\": "src/" }
     },
+    "autoload-dev": {
+        "psr-4": { "Facile\\DoctrineMySQLComeBack\\Doctrine\\DBAL\\": "tests/unit/" }
+    },
     "config": {
         "preferred-install": "dist",
         "bin-dir": "bin"
