@@ -22,6 +22,8 @@ $ composer require adgoal/doctrine-mysql-come-back ^1.7
 In order to use DoctrineMySQLComeBack you have to set `wrapperClass` and `driverClass` connection params.
 You can choose how many times Doctrine should be able to reconnect, setting `x_reconnect_attempts` driver option. Its value should be an int.
 
+You can force ignore the transaction level using the parameters : `force_ignore_transaction_level`.
+
 An example of configuration at connection instantiation time:
 
 ```php
@@ -41,7 +43,8 @@ $connectionParams = array(
     'wrapperClass' => Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Connection::class,
     'driverClass' => Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Driver\PDOMySql\Driver:class,
     'driverOptions' => [
-        'x_reconnect_attempts' => 3
+        'x_reconnect_attempts' => 3,
+        'force_ignore_transaction_level' => true
     ]
 );
 
@@ -89,6 +92,7 @@ return [
                     'charset' => 'UTF8',
                     'driverOptions' => [
                         'x_reconnect_attempts' => 9,
+                        'force_ignore_transaction_level' => true
                     ]
                 ],
             ],
@@ -102,7 +106,7 @@ using master / slave Doctrine configuration.
 
 # Usage
 
-To force a reconnection try after a long running task you can call 
+To force a reconnection try after a long running task you can call
 ```php
 $em->getConnection()->refresh();
 ```

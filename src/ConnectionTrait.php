@@ -20,6 +20,9 @@ trait ConnectionTrait
     /** @var \ReflectionProperty|null */
     private $selfReflectionNestingLevelProperty;
 
+    /** @var bool */
+    protected $forceIgnoreTransactionLevel;
+
     /**
      * @param array $params
      * @param Driver|ServerGoneAwayExceptionsAwareInterface $driver
@@ -44,6 +47,10 @@ trait ConnectionTrait
 
         if (isset($params['driverOptions']['x_reconnect_attempts'])) {
             $this->reconnectAttempts = (int)$params['driverOptions']['x_reconnect_attempts'];
+        }
+
+        if (isset($params['driverOptions']['force_ignore_transaction_level'])) {
+            $this->forceIgnoreTransactionLevel = (int)$params['driverOptions']['force_ignore_transaction_level'];
         }
 
         parent::__construct($params, $driver, $config, $eventManager);
@@ -241,6 +248,8 @@ trait ConnectionTrait
     public function canTryAgain($attempt, $ignoreTransactionLevel = false)
     {
         $canByAttempt = ($attempt < $this->reconnectAttempts);
+        $ignoreTransactionLevel = $this->forceIgnoreTransactionLevel ? true : $ignoreTransactionLevel;
+
         $canByTransactionNestingLevel = $ignoreTransactionLevel ? true : (0 === $this->getTransactionNestingLevel());
 
         return $canByAttempt && $canByTransactionNestingLevel;
