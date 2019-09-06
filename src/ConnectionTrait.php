@@ -28,7 +28,7 @@ trait ConnectionTrait
     /**
      * @var LoggerInterface
      */
-    private $logger;
+    public $logger;
 
     /**
      * @param array $params
@@ -68,6 +68,7 @@ trait ConnectionTrait
      */
     public function getLogger()
     {
+
         if (!$this->logger) {
             $this->logger = new NullLogger();
         }

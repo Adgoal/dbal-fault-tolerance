@@ -25,10 +25,19 @@ class Statement implements \IteratorAggregate, DriverStatement
      */
     protected $conn;
 
+    /**
+     * @var array
+     */
     private $boundValues = [];
 
+    /**
+     * @var array
+     */
     private $boundParams = [];
 
+    /**
+     * @var null|array
+     */
     private $fetchMode;
 
     /**
