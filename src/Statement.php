@@ -47,6 +47,8 @@ class Statement implements IteratorAggregate, DriverStatement
     /**
      * @param $sql
      * @param ConnectionInterface $conn
+     *
+     * @throws \Doctrine\DBAL\DBALException
      */
     public function __construct($sql, ConnectionInterface $conn)
     {
@@ -104,7 +106,7 @@ class Statement implements IteratorAggregate, DriverStatement
                     ++$attempt;
                     $retry = true;
 
-                    $this->getEventManager()->dispatchEvent(
+                    $this->conn->getEventManager()->dispatchEvent(
                         Events\Events::RECONNECT_TO_DATABASE,
                         new ReconnectEventArgs(__FUNCTION__, $attempt, $this->sql)
                     );
