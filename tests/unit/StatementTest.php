@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Log\NullLogger;
-use Psr\Log\Test\TestLogger;
 
 /**
  * Class StatementTest
@@ -30,7 +29,7 @@ class StatementTest extends TestCase
 
     public function test_retry()
     {
-        $log = new TestLogger();
+        $log = new NullLogger();
         $sql = 'SELECT :param';
         /** @var DriverStatement|ObjectProphecy $driverStatement1 */
         $driverStatement1 = $this->prophesize(DriverStatement::class);
@@ -60,13 +59,11 @@ class StatementTest extends TestCase
         $driverStatement2->execute(['param' => 'value'])->willReturn(true)->shouldBeCalledTimes(1);
 
         $this->assertTrue($statement->execute(['param' => 'value']));
-        $this->assertTrue(isset($log->records[0]));
-        $this->assertEquals($log->records[0]['message'], '[DOCTRINE-STATEMENT][{function}] Retrying query (attempt {attempt}): {query}');
     }
 
     public function test_retry_with_state()
     {
-        $log = new TestLogger();
+        $log = new NullLogger();
         $sql = 'SELECT :value, :param';
         /** @var DriverStatement|ObjectProphecy $driverStatement1 */
         $driverStatement1 = $this->prophesize(DriverStatement::class);
@@ -112,7 +109,7 @@ class StatementTest extends TestCase
 
     public function test_retry_fails()
     {
-        $log = new TestLogger();
+        $log = new NullLogger();
         $sql = 'SELECT 1';
         /** @var DriverStatement|ObjectProphecy $driverStatement1 */
         $driverStatement1 = $this->prophesize(DriverStatement::class);
@@ -154,7 +151,7 @@ class StatementTest extends TestCase
 
     public function test_state_cache_only_changed_on_success()
     {
-        $log = new TestLogger();
+        $log = new NullLogger();
         $sql = 'SELECT :value, :param';
         /** @var DriverStatement|ObjectProphecy $driverStatement1 */
         $driverStatement1 = $this->prophesize(DriverStatement::class);
