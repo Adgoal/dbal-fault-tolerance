@@ -8,6 +8,8 @@ use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection as DBALConnection;
 use Doctrine\DBAL\Driver;
 use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Driver\ServerGoneAwayExceptionsAwareInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * Trait ConnectionTrait
@@ -22,6 +24,11 @@ trait ConnectionTrait
 
     /** @var bool */
     protected $forceIgnoreTransactionLevel;
+
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
 
     /**
      * @param array $params
@@ -57,6 +64,26 @@ trait ConnectionTrait
     }
 
     /**
+     * @return LoggerInterface
+     */
+    public function getLogger()
+    {
+        if (!$this->logger) {
+            $this->logger = new NullLogger();
+        }
+        return $this->logger;
+    }
+
+    /***
+     * @param LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
+
+    /**
      * @param string $query
      * @param array $params
      * @param array $types
@@ -80,6 +107,11 @@ trait ConnectionTrait
                     $this->close();
                     ++$attempt;
                     $retry = true;
+
+                    $this->getLogger()->debug(
+                        '[DOCTRINE][{function}] Retrying query (attempt {attempt}): {query}',
+                        ['function' => __FUNCTION__, 'attempt' => $attempt, 'query' => $query]
+                    );
                 } else {
                     throw $e;
                 }
@@ -123,6 +155,11 @@ trait ConnectionTrait
                     $this->close();
                     ++$attempt;
                     $retry = true;
+
+                    $this->getLogger()->debug(
+                        '[DOCTRINE][{function}] Retrying query (attempt {attempt}): {query}',
+                        ['function' => __FUNCTION__, 'attempt' => $attempt, 'query' => count($args) ? $args[0] : '', 'args' => $args]
+                    );
                 } else {
                     throw $e;
                 }
@@ -155,6 +192,11 @@ trait ConnectionTrait
                     $this->close();
                     ++$attempt;
                     $retry = true;
+
+                    $this->getLogger()->debug(
+                        '[DOCTRINE][{function}] Retrying query (attempt {attempt}): {query}',
+                        ['function' => __FUNCTION__, 'attempt' => $attempt, 'query' => $query]
+                    );
                 } else {
                     throw $e;
                 }
@@ -188,6 +230,11 @@ trait ConnectionTrait
                     }
                     ++$attempt;
                     $retry = true;
+
+                    $this->getLogger()->debug(
+                        '[DOCTRINE][{function}] Retrying query (attempt {attempt}): {query}',
+                        ['function' => __FUNCTION__, 'attempt' => $attempt, 'query' => 'BEGIN TRANSACTION']
+                    );
                 } else {
                     throw $e;
                 }

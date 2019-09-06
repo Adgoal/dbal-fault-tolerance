@@ -107,6 +107,7 @@ class ConnectionTest extends TestCase
             ['DELETE ', true],
             ['DELETE ', true],
             ['SELECT ', false],
+            ["\n\n\tSELECT\n", false],
             ['select ', false],
             ["\n\tSELECT\n", false],
             ['(select ', false],
