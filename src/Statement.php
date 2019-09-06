@@ -3,12 +3,16 @@
 namespace Facile\DoctrineMySQLComeBack\Doctrine\DBAL;
 
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
+use Exception;
+use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Events\Args\ReconnectEventArgs;
+use IteratorAggregate;
 use PDO;
+use Traversable;
 
 /**
  * Class Statement.
  */
-class Statement implements \IteratorAggregate, DriverStatement
+class Statement implements IteratorAggregate, DriverStatement
 {
     /**
      * @var string
@@ -43,6 +47,8 @@ class Statement implements \IteratorAggregate, DriverStatement
     /**
      * @param $sql
      * @param ConnectionInterface $conn
+     *
+     * @throws \Doctrine\DBAL\DBALException
      */
     public function __construct($sql, ConnectionInterface $conn)
     {
@@ -53,6 +59,7 @@ class Statement implements \IteratorAggregate, DriverStatement
 
     /**
      * Create Statement.
+     * @throws \Doctrine\DBAL\DBALException
      */
     private function createStatement()
     {
@@ -81,7 +88,7 @@ class Statement implements \IteratorAggregate, DriverStatement
      *
      * @return bool
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function execute($params = null)
     {
@@ -92,16 +99,16 @@ class Statement implements \IteratorAggregate, DriverStatement
             $retry = false;
             try {
                 $stmt = $this->stmt->execute($params);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 if ($this->conn->canTryAgain($attempt) && $this->conn->isRetryableException($e, $this->sql)) {
                     $this->conn->close();
                     $this->recreateStatement();
                     ++$attempt;
                     $retry = true;
 
-                    $this->conn->getLogger()->debug(
-                        '[DOCTRINE-STATEMENT][{function}] Retrying query (attempt {attempt}): {query}',
-                        ['function' => __FUNCTION__, 'attempt' => $attempt, 'query' => $this->sql]
+                    $this->conn->getEventManager()->dispatchEvent(
+                        Events\Events::RECONNECT_TO_DATABASE,
+                        new ReconnectEventArgs(__FUNCTION__, $attempt, $this->sql)
                     );
                 } else {
                     throw $e;
@@ -200,7 +207,7 @@ class Statement implements \IteratorAggregate, DriverStatement
     }
 
     /**
-     * @return \Traversable
+     * @return Traversable
      */
     public function getIterator()
     {

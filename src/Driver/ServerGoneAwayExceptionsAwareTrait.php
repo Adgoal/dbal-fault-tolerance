@@ -2,6 +2,8 @@
 
 namespace Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Driver;
 
+use Exception;
+
 /**
  * Trait ServerGoneAwayExceptionsAwareTrait.
  */
@@ -28,11 +30,11 @@ trait ServerGoneAwayExceptionsAwareTrait
     ];
 
     /**
-     * @param \Exception $exception
+     * @param Exception $exception
      *
      * @return bool
      */
-    public function isGoneAwayException(\Exception $exception)
+    public function isGoneAwayException(Exception $exception)
     {
         $message = $exception->getMessage();
 
@@ -46,11 +48,11 @@ trait ServerGoneAwayExceptionsAwareTrait
     }
 
     /**
-     * @param \Exception $exception
+     * @param Exception $exception
      *
      * @return bool
      */
-    public function isGoneAwayInUpdateException(\Exception $exception)
+    public function isGoneAwayInUpdateException(Exception $exception)
     {
         $message = $exception->getMessage();
 
