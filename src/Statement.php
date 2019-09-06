@@ -25,10 +25,19 @@ class Statement implements \IteratorAggregate, DriverStatement
      */
     protected $conn;
 
+    /**
+     * @var array
+     */
     private $boundValues = [];
 
+    /**
+     * @var array
+     */
     private $boundParams = [];
 
+    /**
+     * @var null|array
+     */
     private $fetchMode;
 
     /**
@@ -89,6 +98,11 @@ class Statement implements \IteratorAggregate, DriverStatement
                     $this->recreateStatement();
                     ++$attempt;
                     $retry = true;
+
+                    $this->conn->getLogger()->debug(
+                        '[DOCTRINE-STATEMENT][{function}] Retrying query (attempt {attempt}): {query}',
+                        ['function' => __FUNCTION__, 'attempt' => $attempt, 'query' => $this->sql]
+                    );
                 } else {
                     throw $e;
                 }

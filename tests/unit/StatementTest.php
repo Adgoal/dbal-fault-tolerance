@@ -7,7 +7,11 @@ use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Statement;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
+use Psr\Log\NullLogger;
 
+/**
+ * Class StatementTest
+ */
 class StatementTest extends TestCase
 {
     public function test_construction()
@@ -25,6 +29,7 @@ class StatementTest extends TestCase
 
     public function test_retry()
     {
+        $log = new NullLogger();
         $sql = 'SELECT :param';
         /** @var DriverStatement|ObjectProphecy $driverStatement1 */
         $driverStatement1 = $this->prophesize(DriverStatement::class);
@@ -36,6 +41,10 @@ class StatementTest extends TestCase
             ->prepareUnwrapped($sql)
             ->willReturn($driverStatement1->reveal(), $driverStatement2->reveal())
             ->shouldBeCalledTimes(2);
+        $connection
+            ->getLogger()
+            ->willReturn($log)
+            ->shouldBeCalledTimes(1);
 
         $statement = new Statement($sql, $connection->reveal());
 
@@ -54,6 +63,7 @@ class StatementTest extends TestCase
 
     public function test_retry_with_state()
     {
+        $log = new NullLogger();
         $sql = 'SELECT :value, :param';
         /** @var DriverStatement|ObjectProphecy $driverStatement1 */
         $driverStatement1 = $this->prophesize(DriverStatement::class);
@@ -65,6 +75,10 @@ class StatementTest extends TestCase
             ->prepareUnwrapped($sql)
             ->willReturn($driverStatement1->reveal(), $driverStatement2)
             ->shouldBeCalledTimes(2);
+        $connection
+            ->getLogger()
+            ->willReturn($log)
+            ->shouldBeCalledTimes(1);
 
         $statement = new Statement($sql, $connection->reveal());
 
@@ -95,6 +109,7 @@ class StatementTest extends TestCase
 
     public function test_retry_fails()
     {
+        $log = new NullLogger();
         $sql = 'SELECT 1';
         /** @var DriverStatement|ObjectProphecy $driverStatement1 */
         $driverStatement1 = $this->prophesize(DriverStatement::class);
@@ -106,6 +121,11 @@ class StatementTest extends TestCase
             ->prepareUnwrapped($sql)
             ->willReturn($driverStatement1->reveal(), $driverStatement2->reveal())
             ->shouldBeCalledTimes(2);
+
+        $connection
+            ->getLogger()
+            ->willReturn($log)
+            ->shouldBeCalledTimes(1);
 
         $statement = new Statement($sql, $connection->reveal());
 
@@ -131,6 +151,7 @@ class StatementTest extends TestCase
 
     public function test_state_cache_only_changed_on_success()
     {
+        $log = new NullLogger();
         $sql = 'SELECT :value, :param';
         /** @var DriverStatement|ObjectProphecy $driverStatement1 */
         $driverStatement1 = $this->prophesize(DriverStatement::class);
@@ -142,6 +163,11 @@ class StatementTest extends TestCase
             ->prepareUnwrapped($sql)
             ->willReturn($driverStatement1->reveal(), $driverStatement2)
             ->shouldBeCalledTimes(2);
+
+        $connection
+            ->getLogger()
+            ->willReturn($log)
+            ->shouldBeCalledTimes(1);
 
         $statement = new Statement($sql, $connection->reveal());
 
