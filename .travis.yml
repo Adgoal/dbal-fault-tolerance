@@ -9,6 +9,13 @@ env:
   - COMPOSER_FLAGS="--prefer-lowest"
   - COMPOSER_FLAGS=""
 
+matrix:
+  fast_finish: true
+  include:
+    - php: 7.3
+      env:
+        - TEST_COVERAGE=true
+
 cache:
   directories:
     - $HOME/.composer/cache/files
