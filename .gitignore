@@ -1,7 +1,7 @@
 .idea
 vendor
-bin
 composer.phar
 composer.lock
 phpunit.xml
 /nbproject/*
+.phpunit.result.cache

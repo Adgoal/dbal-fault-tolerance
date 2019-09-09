@@ -21,6 +21,7 @@ class Driver extends \Doctrine\DBAL\Driver\Mysqli\Driver implements ServerGoneAw
 
     /**
      * {@inheritdoc}
+     *
      * @throws \Doctrine\DBAL\DBALException
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = [])

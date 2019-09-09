@@ -2,8 +2,6 @@ language: php
 sudo: false
 
 php:
-  - 5.6
-  - 7.0
   - 7.1
   - 7.2
   - 7.3
@@ -14,8 +12,8 @@ env:
 matrix:
   fast_finish: true
   include:
-    - php: 7.1
-      env: 
+    - php: 7.3
+      env:
         - TEST_COVERAGE=true
 
 cache:
@@ -23,14 +21,14 @@ cache:
     - $HOME/.composer/cache/files
 
 before_install:
-  - if [ "$TRAVIS_PHP_VERSION" != "hhvm" ]; then phpenv config-rm xdebug.ini; fi;
   - composer self-update
 
 install:
   - composer update --prefer-dist --no-interaction ${COMPOSER_FLAGS}
 
 script:
-  - if [[ $TEST_COVERAGE ]]; then phpdbg -qrr bin/phpunit --coverage-clover clover.xml; else bin/phpunit; fi;
+  - if [[ $TEST_COVERAGE ]]; then phpdbg -qrr vendor/bin/phpunit --coverage-clover clover.xml; else vendor/bin/phpunit; fi;
+
 
 after_success:
   - if [[ $TEST_COVERAGE ]]; then wget https://scrutinizer-ci.com/ocular.phar && php ocular.phar code-coverage:upload --format=php-clover ./clover.xml; fi

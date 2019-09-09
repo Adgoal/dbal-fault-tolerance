@@ -6,30 +6,48 @@ use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Statement as DcStatement;
 use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Connection;
 use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Statement;
+use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
+use Mockery\MockInterface;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
-use Psr\Log\NullLogger;
 
 /**
- * Class StatementTest
+ * Class StatementTest.
  */
 class StatementTest extends TestCase
 {
+    use MockeryPHPUnitIntegration;
+
     /**
      * @throws DBALException
      */
     public function test_construction()
     {
         $sql = 'SELECT 1';
-        $connection = $this->prophesize(Connection::class);
-        $connection
-            ->prepareUnwrapped($sql)
-            ->shouldBeCalledTimes(1);
+        $connection = $this->getConnectionMock([$sql], null, 1);
 
-        $statement = new Statement($sql, $connection->reveal());
+        $statement = new Statement($sql, $connection);
 
         $this->assertInstanceOf(Statement::class, $statement);
+    }
+
+    /**
+     * @param $arg
+     * @param $result
+     * @param $times
+     *
+     * @return Connection|\Mockery\LegacyMockInterface|MockInterface| Connection
+     */
+    private function getConnectionMock($arg, $result, $times)
+    {
+        $mock = Mockery::mock(Connection::class);
+        $mock->shouldReceive('prepareUnwrapped')
+            ->withArgs($arg)
+            ->times($times)
+            ->andReturn($result);
+
+        return $mock;
     }
 
     /**
@@ -37,7 +55,6 @@ class StatementTest extends TestCase
      */
     public function test_retry()
     {
-        $log = new NullLogger();
         $sql = 'SELECT :param';
         /** @var DriverStatement|ObjectProphecy $driverStatement1 */
         $driverStatement1 = $this->prophesize(DriverStatement::class);
@@ -54,7 +71,6 @@ class StatementTest extends TestCase
             ->getEventManager()
             ->willReturn(new EventManager())
             ->shouldBeCalledTimes(1);
-
 
         $statement = new Statement($sql, $connection->reveal());
 
@@ -164,68 +180,19 @@ class StatementTest extends TestCase
         $this->assertTrue($statement->execute());
     }
 
-    /***
+    /**
      * @throws DBALException
      */
-    public function test_state_cache_only_changed_on_success()
-    {
-        $sql = 'SELECT :value, :param';
-        /** @var DriverStatement|ObjectProphecy $driverStatement1 */
-        $driverStatement1 = $this->prophesize(DriverStatement::class);
-        /** @var DriverStatement|ObjectProphecy $driverStatement2 */
-        $driverStatement2 = $this->prophesize(DriverStatement::class);
-        /** @var Connection|ObjectProphecy $connection */
-        $connection = $this->prophesize(Connection::class);
-        $connection
-            ->prepareUnwrapped($sql)
-            ->willReturn($driverStatement1->reveal(), $driverStatement2)
-            ->shouldBeCalledTimes(2);
-
-        $connection
-            ->getEventManager()
-            ->willReturn(new EventManager())
-            ->shouldBeCalledTimes(1);
-
-        $statement = new Statement($sql, $connection->reveal());
-
-        $param = 1;
-        $driverStatement1->bindParam('param', $param, PDO::PARAM_INT, null)->willReturn(false)->shouldBeCalledTimes(1);
-        $driverStatement1->bindValue('value', 'foo', PDO::PARAM_STR)->willReturn(false)->shouldBeCalledTimes(1);
-        $driverStatement1->setFetchMode(PDO::FETCH_COLUMN, 1, null)->willReturn(false)->shouldBeCalledTimes(1);
-
-        $this->assertFalse($statement->bindParam('param', $param, PDO::PARAM_INT));
-        $this->assertFalse($statement->bindValue('value', 'foo'));
-        $this->assertFalse($statement->setFetchMode(PDO::FETCH_COLUMN, 1));
-
-        $exception = new DBALException('Test');
-        $driverStatement1->execute(null)->willThrow($exception)->shouldBeCalledTimes(1);
-
-        $connection->canTryAgain(0)->willReturn(true)->shouldBeCalledTimes(1);
-        $connection->isRetryableException($exception, $sql)->willReturn(true)->shouldBeCalledTimes(1);
-
-        // retry
-        $connection->close()->shouldBeCalledTimes(1);
-        $driverStatement2->bindParam(Argument::cetera())->shouldNotBeCalled();
-        $driverStatement2->bindValue(Argument::cetera())->shouldNotBeCalled();
-        $driverStatement2->setFetchMode(Argument::cetera())->shouldNotBeCalled();
-        $driverStatement2->execute(null)->willReturn(true)->shouldBeCalledTimes(1);
-
-        $this->assertTrue($statement->execute());
-    }
-
-
     public function test_execute()
     {
         $sql = 'SELECT 1';
-        $dcStatement = $this->prophesize(DcStatement::class);
-        $dcStatement->execute(['test' => 1])->shouldBeCalledTimes(1)->willReturn(true);
 
-        $connection = $this->mockBaseConnection($sql, $dcStatement->reveal());
+        $dcStatement = $this->getDcStatementMock([['test' => 1]], true, 1);
 
-        $statement = new Statement($sql, $connection->reveal());
-        $this->assertTrue(
-            $statement->execute(['test' => 1])
-        );
+        $connection = $this->getConnectionMock([$sql], $dcStatement, 1);
+
+        $statement = new Statement($sql, $connection);
+        $this->assertTrue($statement->execute(['test' => 1]));
     }
 
     /**
@@ -241,12 +208,11 @@ class StatementTest extends TestCase
         $connection = $this->mockBaseConnection($sql, $dcStatement->reveal());
         $connection->canTryAgain(0)->willReturn(false);
         $connection->close()->shouldNotBeCalled();
-        $connection->isRetryableException(Argument::type(\Exception::class), $sql)->willReturn(false);
+        $connection->isRetryableException(Argument::type(\Throwable::class), $sql)->willReturn(false);
 
         $statement = new Statement($sql, $connection->reveal());
 
-
-        $this->expectException(\Exception::class);
+        $this->expectException(\Throwable::class);
         $statement->execute(['test' => 1]);
     }
 
@@ -268,4 +234,21 @@ class StatementTest extends TestCase
         return $connection;
     }
 
+    /**
+     * @param $arg
+     * @param $result
+     * @param $times
+     *
+     * @return DcStatement|\Mockery\LegacyMockInterface|MockInterface|DcStatement
+     */
+    private function getDcStatementMock($arg, $result, $times)
+    {
+        $mock = Mockery::mock(DcStatement::class);
+        $mock->shouldReceive('execute')
+            ->withArgs($arg)
+            ->times($times)
+            ->andReturn($result);
+
+        return $mock;
+    }
 }
