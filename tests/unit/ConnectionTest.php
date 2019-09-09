@@ -14,6 +14,9 @@ class ConnectionTest extends TestCase
     /** @var Connection */
     protected $connection;
 
+    /**
+     * @throws \Doctrine\DBAL\DBALException
+     */
     public function setUp()
     {
         $driver = $this->prophesize(Driver::class)
@@ -37,6 +40,9 @@ class ConnectionTest extends TestCase
         );
     }
 
+    /**
+     * @throws \Doctrine\DBAL\DBALException
+     */
     public function testConstructor()
     {
         $driver = $this->prophesize(Driver::class)

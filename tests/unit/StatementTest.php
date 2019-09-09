@@ -3,6 +3,7 @@
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
+use Doctrine\DBAL\Statement as DcStatement;
 use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Connection;
 use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Statement;
 use PHPUnit\Framework\TestCase;
@@ -15,6 +16,9 @@ use Psr\Log\NullLogger;
  */
 class StatementTest extends TestCase
 {
+    /**
+     * @throws DBALException
+     */
     public function test_construction()
     {
         $sql = 'SELECT 1';
@@ -28,6 +32,9 @@ class StatementTest extends TestCase
         $this->assertInstanceOf(Statement::class, $statement);
     }
 
+    /**
+     * @throws DBALException
+     */
     public function test_retry()
     {
         $log = new NullLogger();
@@ -64,6 +71,9 @@ class StatementTest extends TestCase
         $this->assertTrue($statement->execute(['param' => 'value']));
     }
 
+    /**
+     * @throws DBALException
+     */
     public function test_retry_with_state()
     {
         $sql = 'SELECT :value, :param';
@@ -110,6 +120,9 @@ class StatementTest extends TestCase
         $this->assertTrue($statement->execute());
     }
 
+    /**
+     * @throws DBALException
+     */
     public function test_retry_fails()
     {
         $sql = 'SELECT 1';
@@ -151,6 +164,9 @@ class StatementTest extends TestCase
         $this->assertTrue($statement->execute());
     }
 
+    /***
+     * @throws DBALException
+     */
     public function test_state_cache_only_changed_on_success()
     {
         $sql = 'SELECT :value, :param';
@@ -196,4 +212,60 @@ class StatementTest extends TestCase
 
         $this->assertTrue($statement->execute());
     }
+
+
+    public function test_execute()
+    {
+        $sql = 'SELECT 1';
+        $dcStatement = $this->prophesize(DcStatement::class);
+        $dcStatement->execute(['test' => 1])->shouldBeCalledTimes(1)->willReturn(true);
+
+        $connection = $this->mockBaseConnection($sql, $dcStatement->reveal());
+
+        $statement = new Statement($sql, $connection->reveal());
+        $this->assertTrue(
+            $statement->execute(['test' => 1])
+        );
+    }
+
+    /**
+     * @throws DBALException
+     */
+    public function test_execute_gone_away_not_retrayable()
+    {
+        $sql = 'SELECT 1';
+        /** @var DcStatement|ObjectProphecy $dcStatement */
+        $dcStatement = $this->prophesize(DcStatement::class);
+        $dcStatement->execute(['test' => 1])->willThrow(new \Exception('test'));
+
+        $connection = $this->mockBaseConnection($sql, $dcStatement->reveal());
+        $connection->canTryAgain(0)->willReturn(false);
+        $connection->close()->shouldNotBeCalled();
+        $connection->isRetryableException(Argument::type(\Exception::class), $sql)->willReturn(false);
+
+        $statement = new Statement($sql, $connection->reveal());
+
+
+        $this->expectException(\Exception::class);
+        $statement->execute(['test' => 1]);
+    }
+
+    /**
+     * @param             $sql
+     * @param DcStatement $statement
+     *
+     * @return Connection|\Prophecy\Prophecy\ObjectProphecy
+     */
+    private function mockBaseConnection($sql, $statement = null)
+    {
+        $connection = $this
+            ->prophesize(Connection::class);
+        $connection
+            ->prepareUnwrapped($sql)
+            ->shouldBeCalled()
+            ->willReturn($statement);
+
+        return $connection;
+    }
+
 }
