@@ -7,12 +7,10 @@ use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Events\Args\ReconnectEventArgs;
 use Psr\Log\LoggerInterface;
 
 /**
- * Class EventListener
- * @package Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Events
+ * Class EventListener.
  */
 class EventListener implements EventSubscriber
 {
-
     /**
      * @var LoggerInterface
      */
@@ -31,14 +29,15 @@ class EventListener implements EventSubscriber
     public function getSubscribedEvents()
     {
         return [
-            Events::RECONNECT_TO_DATABASE
+            Events::RECONNECT_TO_DATABASE,
         ];
     }
 
     /**
      * @param ReconnectEventArgs $args
      */
-    public function reconnectToDatabase(ReconnectEventArgs $args) {
+    public function reconnectToDatabase(ReconnectEventArgs $args)
+    {
         $this->logger->debug(
             '[DOCTRINE][{function}] Retrying query (attempt {attempt}): {query}',
             ['function' => $args->getFunction(), 'attempt' => $args->getAttempt(), 'query' => $args->getQuery()]

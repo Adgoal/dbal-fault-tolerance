@@ -59,6 +59,7 @@ class Statement implements IteratorAggregate, DriverStatement
 
     /**
      * Create Statement.
+     *
      * @throws \Doctrine\DBAL\DBALException
      */
     private function createStatement()
@@ -97,6 +98,7 @@ class Statement implements IteratorAggregate, DriverStatement
         $retry = true;
         while ($retry) {
             $retry = false;
+
             try {
                 $stmt = $this->stmt->execute($params);
             } catch (Exception $e) {
@@ -220,8 +222,9 @@ class Statement implements IteratorAggregate, DriverStatement
 
     /**
      * @param int|null $fetchMode
-     * @param int $cursorOrientation Only for doctrine/DBAL >= 2.6
-     * @param int $cursorOffset Only for doctrine/DBAL >= 2.6
+     * @param int      $cursorOrientation Only for doctrine/DBAL >= 2.6
+     * @param int      $cursorOffset      Only for doctrine/DBAL >= 2.6
+     *
      * @return mixed
      */
     public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
@@ -231,8 +234,9 @@ class Statement implements IteratorAggregate, DriverStatement
 
     /**
      * @param int|null $fetchMode
-     * @param int $fetchArgument Only for doctrine/DBAL >= 2.6
-     * @param null $ctorArgs Only for doctrine/DBAL >= 2.6
+     * @param int      $fetchArgument Only for doctrine/DBAL >= 2.6
+     * @param null     $ctorArgs      Only for doctrine/DBAL >= 2.6
+     *
      * @return mixed
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)

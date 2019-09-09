@@ -10,14 +10,13 @@ use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use Mockery\MockInterface;
 use PHPUnit\Framework\TestCase;
 
-
 /**
- * Class StateCacheTest
- * @package Facile\DoctrineMySQLComeBack\Doctrine\DBAL
+ * Class StateCacheTest.
  */
 class StateCacheTest extends TestCase
 {
     use MockeryPHPUnitIntegration;
+
     /**
      * @covers \Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Statement
      *
@@ -30,18 +29,15 @@ class StateCacheTest extends TestCase
         $driverStatementNormal = $this->getDriverStatementMock(false, true);
         $driverStatementError = $this->getDriverStatementMock(true, true, DBALException::class);
 
-
         $connection = $this->getConnectionMock([$sql], $driverStatementError, $driverStatementNormal);
 
         $statement = new Statement($sql, $connection);
 
         $this->assertTrue($statement->execute());
-
     }
 
-
     /**
-     * @param string $arg
+     * @param string          $arg
      * @param DriverStatement $driverError
      * @param DriverStatement $driverNormal
      *
@@ -63,10 +59,8 @@ class StateCacheTest extends TestCase
             ->times(1)
             ->andReturnTrue();
 
-
         $mock->shouldReceive('close')
             ->times(1);
-
 
         $mock->shouldReceive('getEventManager')
             ->andReturn(new EventManager())
@@ -82,12 +76,13 @@ class StateCacheTest extends TestCase
      *
      * @return DriverStatement|Mockery\LegacyMockInterface|MockInterface
      */
-    private function getDriverStatementMock($isError, $stmt, $exception = null) {
+    private function getDriverStatementMock($isError, $stmt, $exception = null)
+    {
         $mock = Mockery::mock(DriverStatement::class);
         $isn = $mock
             ->shouldReceive('execute')
             ->times(1);
-        if($isError) {
+        if ($isError) {
             $isn->andThrow($exception, 'Test', 1);
         } else {
             $isn->andReturn($stmt);
@@ -95,5 +90,4 @@ class StateCacheTest extends TestCase
 
         return $mock;
     }
-
 }

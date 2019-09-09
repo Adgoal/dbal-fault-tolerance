@@ -5,8 +5,7 @@ namespace Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Events\Args;
 use Doctrine\Common\EventArgs;
 
 /**
- * Class ReconnectEventArgs
- * @package Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Events\Args
+ * Class ReconnectEventArgs.
  */
 class ReconnectEventArgs extends EventArgs
 {
@@ -34,9 +33,9 @@ class ReconnectEventArgs extends EventArgs
      * ReconnectEventArgs constructor.
      *
      * @param string $function
-     * @param int $attempt
+     * @param int    $attempt
      * @param string $query
-     * @param mixed $args
+     * @param mixed  $args
      */
     public function __construct($function, $attempt, $query, $args = null)
     {
@@ -77,6 +76,4 @@ class ReconnectEventArgs extends EventArgs
     {
         return $this->args;
     }
-
-
 }

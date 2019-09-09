@@ -1,4 +1,5 @@
 <?php
+
 namespace Facile\DoctrineMySQLComeBack\Doctrine\DBAL;
 
 use Doctrine\DBAL\Statement as DBALStatement;
@@ -15,7 +16,8 @@ class StatementBindValueTest extends TestCase
      *
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function test_bind_value_to_statement($arg1, $arg2, $arg3, $return) {
+    public function test_bind_value_to_statement($arg1, $arg2, $arg3, $return)
+    {
         $statmentFake = $this->getDBALStatementMock($return);
         $statment = new Statement('SELECT 1', $this->getConnectionMock($statmentFake));
 
@@ -29,7 +31,8 @@ class StatementBindValueTest extends TestCase
      *
      * @return DBALStatement|Mockery\LegacyMockInterface|Mockery\MockInterface
      */
-    public function getDBALStatementMock($return) {
+    public function getDBALStatementMock($return)
+    {
         $mock = Mockery::mock(DBALStatement::class);
         $mock
             ->shouldReceive('bindValue')
@@ -47,20 +50,22 @@ class StatementBindValueTest extends TestCase
         return $mock;
     }
 
-
-    private function getConnectionMock($return) {
+    private function getConnectionMock($return)
+    {
         $mock = Mockery::mock(Connection::class);
         $mock
             ->shouldReceive('prepareUnwrapped')
             ->times(1)
             ->andReturn($return);
+
         return $mock;
     }
 
     /**
      * @return array
      */
-    public function dataProvider() {
+    public function dataProvider()
+    {
         return [
             [
                 'arg1',
@@ -74,7 +79,6 @@ class StatementBindValueTest extends TestCase
                 'arg3',
                 false,
             ],
-
         ];
     }
 }

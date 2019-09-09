@@ -4,8 +4,7 @@ style: ## executes php analizers
 
 .PHONY: lint
 lint: ## checks syntax of PHP files
-	docker-compose run --rm --no-deps php sh -lc './vendor/bin/parallel-lint ./ --exclude vendor --exclude bin/.phpunit'
-	docker-compose run --rm --no-deps php sh -lc './bin/console lint:yaml config'
+	./vendor/bin/parallel-lint ./ --exclude vendor --exclude bin/.phpunit
 
 coding-standards: ## Run check and validate code standards tests
 	vendor/bin/ecs check src tests

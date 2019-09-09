@@ -180,8 +180,6 @@ class StatementTest extends TestCase
         $this->assertTrue($statement->execute());
     }
 
-
-
     /**
      * @throws DBALException
      */
@@ -243,7 +241,8 @@ class StatementTest extends TestCase
      *
      * @return DcStatement|\Mockery\LegacyMockInterface|MockInterface|DcStatement
      */
-    private function getDcStatementMock($arg, $result, $times) {
+    private function getDcStatementMock($arg, $result, $times)
+    {
         $mock = Mockery::mock(DcStatement::class);
         $mock->shouldReceive('execute')
             ->withArgs($arg)

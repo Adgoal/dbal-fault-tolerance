@@ -45,8 +45,7 @@ trait ConnectionTrait
         Driver $driver,
         Configuration $config = null,
         EventManager $eventManager = null
-    )
-    {
+    ) {
         if (!$driver instanceof ServerGoneAwayExceptionsAwareInterface) {
             throw new InvalidArgumentException(
                 sprintf('%s needs a driver that implements ServerGoneAwayExceptionsAwareInterface', get_class($this))
@@ -75,7 +74,7 @@ trait ConnectionTrait
      * @throws Exception
      * @throws Throwable
      */
-    public function executeQuery($query, array $params = array(), $types = array(), QueryCacheProfile $qcp = null)
+    public function executeQuery($query, array $params = [], $types = [], QueryCacheProfile $qcp = null)
     {
         $stmt = null;
         $attempt = 0;
@@ -167,7 +166,7 @@ trait ConnectionTrait
      *
      * @throws Exception
      */
-    public function executeUpdate($query, array $params = array(), array $types = array())
+    public function executeUpdate($query, array $params = [], array $types = [])
     {
         $stmt = null;
         $attempt = 0;
@@ -322,6 +321,7 @@ trait ConnectionTrait
      * This is required because beginTransaction increment transactionNestingLevel
      * before the real query is executed, and results incremented also on gone away error.
      * This should be safe for a new established connection.
+     *
      * @throws \ReflectionException
      * @throws \ReflectionException
      */
