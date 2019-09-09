@@ -226,6 +226,7 @@ trait ConnectionTrait
      * @param $sql
      *
      * @return Statement
+     * @throws DBALException
      */
     public function prepare($sql)
     {
@@ -238,6 +239,7 @@ trait ConnectionTrait
      * @param $sql
      *
      * @return Statement
+     * @throws DBALException
      */
     protected function prepareWrapped($sql)
     {
