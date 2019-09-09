@@ -92,7 +92,7 @@ class Statement implements IteratorAggregate, DriverStatement
      */
     public function execute($params = null)
     {
-        $stmt = null;
+        $stmt = false;
         $attempt = 0;
         $retry = true;
         while ($retry) {
@@ -100,7 +100,11 @@ class Statement implements IteratorAggregate, DriverStatement
             try {
                 $stmt = $this->stmt->execute($params);
             } catch (Exception $e) {
-                if ($this->conn->canTryAgain($attempt) && $this->conn->isRetryableException($e, $this->sql)) {
+                if (
+                    $this->conn->canTryAgain($attempt)
+                    &&
+                    $this->conn->isRetryableException($e, $this->sql)
+                ) {
                     $this->conn->close();
                     $this->recreateStatement();
                     ++$attempt;
@@ -173,7 +177,7 @@ class Statement implements IteratorAggregate, DriverStatement
     }
 
     /**
-     * @return int
+     * @return string|int|bool
      */
     public function errorCode()
     {
@@ -252,13 +256,5 @@ class Statement implements IteratorAggregate, DriverStatement
     public function rowCount()
     {
         return $this->stmt->rowCount();
-    }
-
-    /**
-     * @return \Doctrine\DBAL\Statement
-     */
-    public function getWrappedStatement()
-    {
-        return $this->stmt;
     }
 }

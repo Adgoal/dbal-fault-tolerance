@@ -13,10 +13,12 @@ use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Driver\ServerGoneAwayExceptionsAw
 use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Events\Args\ReconnectEventArgs;
 use InvalidArgumentException;
 use ReflectionClass;
+use ReflectionException;
 use ReflectionProperty;
+use Throwable;
 
 /**
- * Trait ConnectionTrait
+ * Trait ConnectionTrait.
  */
 trait ConnectionTrait
 {
@@ -30,10 +32,10 @@ trait ConnectionTrait
     protected $forceIgnoreTransactionLevel;
 
     /**
-     * @param array $params
+     * @param array                                         $params
      * @param Driver|ServerGoneAwayExceptionsAwareInterface $driver
-     * @param Configuration $config
-     * @param EventManager $eventManager
+     * @param Configuration                                 $config
+     * @param EventManager                                  $eventManager
      *
      * @throws InvalidArgumentException
      * @throws DBALException
@@ -52,26 +54,26 @@ trait ConnectionTrait
         }
 
         if (isset($params['driverOptions']['x_reconnect_attempts'])) {
-            $this->reconnectAttempts = (int)$params['driverOptions']['x_reconnect_attempts'];
+            $this->reconnectAttempts = (int) $params['driverOptions']['x_reconnect_attempts'];
         }
 
         if (isset($params['driverOptions']['force_ignore_transaction_level'])) {
-            $this->forceIgnoreTransactionLevel = (int)$params['driverOptions']['force_ignore_transaction_level'];
+            $this->forceIgnoreTransactionLevel = (int) $params['driverOptions']['force_ignore_transaction_level'];
         }
 
         parent::__construct($params, $driver, $config, $eventManager);
     }
 
-
     /**
-     * @param string $query
-     * @param array $params
-     * @param array $types
+     * @param string            $query
+     * @param array             $params
+     * @param array             $types
      * @param QueryCacheProfile $qcp
      *
-     * @return \Doctrine\DBAL\Driver\Statement The executed statement.
+     * @return \Doctrine\DBAL\Driver\Statement the executed statement
      *
      * @throws Exception
+     * @throws Throwable
      */
     public function executeQuery($query, array $params = array(), $types = array(), QueryCacheProfile $qcp = null)
     {
@@ -80,6 +82,7 @@ trait ConnectionTrait
         $retry = true;
         while ($retry) {
             $retry = false;
+
             try {
                 $stmt = parent::executeQuery($query, $params, $types, $qcp);
             } catch (Exception $e) {
@@ -92,9 +95,9 @@ trait ConnectionTrait
                         Events\Events::RECONNECT_TO_DATABASE,
                         new ReconnectEventArgs(__FUNCTION__, $attempt, $query)
                     );
-                } else {
-                    throw $e;
                 }
+
+                throw $e;
             }
         }
 
@@ -103,6 +106,7 @@ trait ConnectionTrait
 
     /**
      * @return \Doctrine\DBAL\Driver\Statement
+     *
      * @throws Exception
      */
     public function query()
@@ -113,19 +117,24 @@ trait ConnectionTrait
         $retry = true;
         while ($retry) {
             $retry = false;
+
             try {
                 switch (count($args)) {
                     case 1:
                         $stmt = parent::query($args[0]);
+
                         break;
                     case 2:
                         $stmt = parent::query($args[0], $args[1]);
+
                         break;
                     case 3:
                         $stmt = parent::query($args[0], $args[1], $args[2]);
+
                         break;
                     case 4:
                         $stmt = parent::query($args[0], $args[1], $args[2], $args[3]);
+
                         break;
                     default:
                         $stmt = parent::query();
@@ -151,10 +160,10 @@ trait ConnectionTrait
 
     /**
      * @param string $query
-     * @param array $params
-     * @param array $types
+     * @param array  $params
+     * @param array  $types
      *
-     * @return integer The number of affected rows.
+     * @return int the number of affected rows
      *
      * @throws Exception
      */
@@ -165,6 +174,7 @@ trait ConnectionTrait
         $retry = true;
         while ($retry) {
             $retry = false;
+
             try {
                 $stmt = parent::executeUpdate($query, $params, $types);
             } catch (Exception $e) {
@@ -187,8 +197,8 @@ trait ConnectionTrait
     }
 
     /**
-     * @return void
-     * @throws Exception
+     * @throws ReflectionException
+     * @throws Throwable
      */
     public function beginTransaction()
     {
@@ -200,9 +210,10 @@ trait ConnectionTrait
         $retry = true;
         while ($retry) {
             $retry = false;
+
             try {
                 parent::beginTransaction();
-            } catch (Exception $e) {
+            } catch (Throwable $e) {
                 if ($this->canTryAgain($attempt, true) && $this->_driver->isGoneAwayException($e)) {
                     $this->close();
                     if (0 < $this->getTransactionNestingLevel()) {
@@ -226,6 +237,7 @@ trait ConnectionTrait
      * @param $sql
      *
      * @return Statement
+     *
      * @throws DBALException
      */
     public function prepare($sql)
@@ -239,6 +251,7 @@ trait ConnectionTrait
      * @param $sql
      *
      * @return Statement
+     *
      * @throws DBALException
      */
     protected function prepareWrapped($sql)
@@ -253,7 +266,9 @@ trait ConnectionTrait
      * @param $sql
      *
      * @return Driver\Statement
+     *
      * @throws DBALException
+     *
      * @internal
      */
     public function prepareUnwrapped($sql)
@@ -283,13 +298,13 @@ trait ConnectionTrait
         $canByAttempt = ($attempt < $this->reconnectAttempts);
         $ignoreTransactionLevel = $this->forceIgnoreTransactionLevel ? true : $ignoreTransactionLevel;
 
-        $canByTransactionNestingLevel = $ignoreTransactionLevel ? true : (0 === $this->getTransactionNestingLevel());
+        $canByTransactionNestingLevel = $ignoreTransactionLevel ? true : 0 === $this->getTransactionNestingLevel();
 
         return $canByAttempt && $canByTransactionNestingLevel;
     }
 
     /**
-     * @param Exception $e
+     * @param Exception   $e
      * @param string|null $query
      *
      * @return bool

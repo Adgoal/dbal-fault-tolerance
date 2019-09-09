@@ -1,0 +1,7 @@
+includes:
+    - vendor/phpstan/phpstan-phpunit/extension.neon
+    - vendor/jangregor/phpstan-prophecy/src/extension.neon
+    - vendor/phpstan/phpstan-mockery/extension.neon
+parameters:
+    excludes_analyse:
+        - %rootDir%/../../../vendor/*
