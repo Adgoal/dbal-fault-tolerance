@@ -2,7 +2,6 @@ language: php
 sudo: false
 
 php:
-  - 7.0
   - 7.1
   - 7.2
   - 7.3
@@ -10,12 +9,6 @@ env:
   - COMPOSER_FLAGS="--prefer-lowest"
   - COMPOSER_FLAGS=""
 
-matrix:
-  fast_finish: true
-  include:
-    - php: 7.1
-      env:
-        - TEST_COVERAGE=true
 cache:
   directories:
     - $HOME/.composer/cache/files
