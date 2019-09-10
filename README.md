@@ -1,12 +1,12 @@
-[![Latest Stable Version](https://poser.pugx.org/adgoal/doctrine-mysql-come-back/v/stable.svg)](https://packagist.org/packages/adgoal/doctrine-mysql-come-back) 
-[![Latest Unstable Version](https://poser.pugx.org/adgoal/doctrine-mysql-come-back/v/unstable.svg)](https://packagist.org/packages/adgoal/doctrine-mysql-come-back) 
-[![Total Downloads](https://poser.pugx.org/adgoal/doctrine-mysql-come-back/downloads.svg)](https://packagist.org/packages/adgoal/doctrine-mysql-come-back) 
+[![Latest Stable Version](https://poser.pugx.org/adgoal/dbal-fault-tolerance/v/stable.svg)](https://packagist.org/packages/adgoal/dbal-fault-tolerance) 
+[![Latest Unstable Version](https://poser.pugx.org/adgoal/dbal-fault-tolerance/v/unstable.svg)](https://packagist.org/packages/adgoal/dbal-fault-tolerance) 
+[![Total Downloads](https://poser.pugx.org/adgoal/dbal-fault-tolerance/downloads.svg)](https://packagist.org/packages/adgoal/dbal-fault-tolerance) 
 
-[![Build status](https://travis-ci.org/adgoal/doctrine-mysql-come-back.svg)]( https://travis-ci.org/adgoal/doctrine-mysql-come-back)
-[![Scrutinizer score](https://scrutinizer-ci.com/g/adgoal/doctrine-mysql-come-back/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/adgoal/doctrine-mysql-come-back/?branch=master)
-[![Test coverage](https://scrutinizer-ci.com/g/adgoal/doctrine-mysql-come-back/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/adgoal/doctrine-mysql-come-back/?branch=master)
+[![Build status](https://travis-ci.org/adgoal/dbal-fault-tolerance.svg)]( https://travis-ci.org/adgoal/dbal-fault-tolerance)
+[![Scrutinizer score](https://scrutinizer-ci.com/g/adgoal/dbal-fault-tolerance/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/adgoal/dbal-fault-tolerance/?branch=master)
+[![Test coverage](https://scrutinizer-ci.com/g/adgoal/dbal-fault-tolerance/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/adgoal/dbal-fault-tolerance/?branch=master)
 
-[![License](https://poser.pugx.org/adgoal/doctrine-mysql-come-back/license.svg)](https://packagist.org/packages/adgoal/doctrine-mysql-come-back)
+[![License](https://poser.pugx.org/adgoal/dbal-fault-tolerance/license.svg)](https://packagist.org/packages/adgoal/dbal-fault-tolerance)
 # DBALFaultTolerance
 
 Auto reconnect on Doctrine MySql has gone away exceptions on doctrine/dbal >=2.3, <3.0.
@@ -14,7 +14,7 @@ Auto reconnect on Doctrine MySql has gone away exceptions on doctrine/dbal >=2.3
 # Installation
 
 ```console
-$ composer require adgoal/doctrine-mysql-come-back ^1.7
+$ composer require adgoal/dbal-fault-tolerance
 ```
 
 # Configuration
@@ -39,9 +39,9 @@ $connectionParams = array(
     'user' => 'user',
     'password' => 'secret',
     'host' => 'localhost',
-    // [doctrine-mysql-come-back] settings
+    // [dbal-fault-tolerance] settings
     'wrapperClass' => Adgoal\DBALFaultTolerance\Connection::class,
-    'driverClass' => Adgoal\DBALFaultTolerance\Driver\PDOMySql\Driver:class,
+    'driverClass' => Adgoal\DBALFaultTolerance\Driver\PDOMySql\Driver::class,
     'driverOptions' => [
         'x_reconnect_attempts' => 3,
         'force_ignore_transaction_level' => true
