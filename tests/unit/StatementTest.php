@@ -24,27 +24,9 @@ class StatementTest extends TestCase
     use MockeryPHPUnitIntegration;
 
     /**
-     * @param $arg
-     * @param $result
-     * @param $times
-     *
-     * @return Connection|\Mockery\LegacyMockInterface|MockInterface| Connection
-     */
-    private function getConnectionMock($arg, $result, $times)
-    {
-        $mock = Mockery::mock(Connection::class);
-        $mock->shouldReceive('prepareUnwrapped')
-            ->withArgs($arg)
-            ->times($times)
-            ->andReturn($result);
-
-        return $mock;
-    }
-
-    /**
      * @throws DBALException
      */
-    public function test_retry()
+    public function testRetry()
     {
         $sql = 'SELECT :param';
         /** @var DriverStatement|ObjectProphecy $driverStatement1 */
@@ -81,7 +63,7 @@ class StatementTest extends TestCase
     /**
      * @throws DBALException
      */
-    public function test_retry_with_state()
+    public function testRetryWithState()
     {
         $sql = 'SELECT :value, :param';
         /** @var DriverStatement|ObjectProphecy $driverStatement1 */
@@ -130,7 +112,7 @@ class StatementTest extends TestCase
     /**
      * @throws DBALException
      */
-    public function test_retry_fails()
+    public function testRetryFails()
     {
         $sql = 'SELECT 1';
         /** @var DriverStatement|ObjectProphecy $driverStatement1 */
@@ -174,7 +156,7 @@ class StatementTest extends TestCase
     /**
      * @throws DBALException
      */
-    public function test_execute()
+    public function testExecute()
     {
         $sql = 'SELECT 1';
 
@@ -189,7 +171,7 @@ class StatementTest extends TestCase
     /**
      * @throws DBALException
      */
-    public function test_execute_gone_away_not_retrayable()
+    public function testExecuteGoneAwayNotRetrayable()
     {
         $sql = 'SELECT 1';
         /** @var DcStatement|ObjectProphecy $dcStatement */
@@ -205,6 +187,24 @@ class StatementTest extends TestCase
 
         $this->expectException(\Throwable::class);
         $statement->execute(['test' => 1]);
+    }
+
+    /**
+     * @param $arg
+     * @param $result
+     * @param $times
+     *
+     * @return Connection|\Mockery\LegacyMockInterface|MockInterface| Connection
+     */
+    private function getConnectionMock($arg, $result, $times)
+    {
+        $mock = Mockery::mock(Connection::class);
+        $mock->shouldReceive('prepareUnwrapped')
+            ->withArgs($arg)
+            ->times($times)
+            ->andReturn($result);
+
+        return $mock;
     }
 
     /**

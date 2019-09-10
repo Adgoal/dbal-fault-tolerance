@@ -42,7 +42,7 @@ class Statement implements IteratorAggregate, DriverStatement
     private $boundParams = [];
 
     /**
-     * @var null|array
+     * @var array|null
      */
     private $fetchMode;
 
@@ -57,31 +57,6 @@ class Statement implements IteratorAggregate, DriverStatement
         $this->sql = $sql;
         $this->conn = $conn;
         $this->createStatement();
-    }
-
-    /**
-     * Create Statement.
-     */
-    private function createStatement()
-    {
-        $this->stmt = $this->conn->prepareUnwrapped($this->sql);
-    }
-
-    /**
-     * Recreate statement for retry.
-     */
-    private function recreateStatement()
-    {
-        $this->createStatement();
-        if (null !== $this->fetchMode) {
-            call_user_func_array([$this->stmt, 'setFetchMode'], $this->fetchMode);
-        }
-        foreach ($this->boundValues as $boundValue) {
-            call_user_func_array([$this->stmt, 'bindValue'], $boundValue);
-        }
-        foreach ($this->boundParams as $boundParam) {
-            call_user_func_array([$this->stmt, 'bindParam'], $boundParam);
-        }
     }
 
     /**
@@ -260,5 +235,30 @@ class Statement implements IteratorAggregate, DriverStatement
     public function rowCount()
     {
         return $this->stmt->rowCount();
+    }
+
+    /**
+     * Create Statement.
+     */
+    private function createStatement()
+    {
+        $this->stmt = $this->conn->prepareUnwrapped($this->sql);
+    }
+
+    /**
+     * Recreate statement for retry.
+     */
+    private function recreateStatement()
+    {
+        $this->createStatement();
+        if ($this->fetchMode !== null) {
+            call_user_func_array([$this->stmt, 'setFetchMode'], $this->fetchMode);
+        }
+        foreach ($this->boundValues as $boundValue) {
+            call_user_func_array([$this->stmt, 'bindValue'], $boundValue);
+        }
+        foreach ($this->boundParams as $boundParam) {
+            call_user_func_array([$this->stmt, 'bindParam'], $boundParam);
+        }
     }
 }

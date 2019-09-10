@@ -39,7 +39,7 @@ trait ServerGoneAwayExceptionsAwareTrait
         $message = $exception->getMessage();
 
         foreach ($this->goneAwayExceptions as $goneAwayException) {
-            if (false !== stripos($message, $goneAwayException)) {
+            if (stripos($message, $goneAwayException) !== false) {
                 return true;
             }
         }
@@ -57,7 +57,7 @@ trait ServerGoneAwayExceptionsAwareTrait
         $message = $exception->getMessage();
 
         foreach ($this->goneAwayInUpdateExceptions as $goneAwayException) {
-            if (false !== stripos($message, $goneAwayException)) {
+            if (stripos($message, $goneAwayException) !== false) {
                 return true;
             }
         }

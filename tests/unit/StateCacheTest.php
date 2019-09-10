@@ -24,7 +24,7 @@ class StateCacheTest extends TestCase
      *
      * @throws DBALException
      */
-    public function test_state_cache_only_changed_on_success()
+    public function testStateCacheOnlyChangedOnSuccess()
     {
         $sql = 'SELECT :value, :param';
 

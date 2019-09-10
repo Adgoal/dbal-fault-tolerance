@@ -38,14 +38,14 @@ trait ConnectionTrait
     protected $reconnectAttempts = 0;
 
     /**
-     * @var ReflectionProperty|null
-     */
-    private $selfReflectionNestingLevelProperty;
-
-    /**
      * @var int|bool
      */
     protected $forceIgnoreTransactionLevel;
+
+    /**
+     * @var ReflectionProperty|null
+     */
+    private $selfReflectionNestingLevelProperty;
 
     /**
      * ConnectionTrait constructor.
@@ -63,9 +63,9 @@ trait ConnectionTrait
         Configuration $config = null,
         EventManager $eventManager = null
     ) {
-        if (!$driver instanceof DriverInterface) {
+        if (! $driver instanceof DriverInterface) {
             throw new InvalidArgumentException(
-                sprintf('%s needs a driver that implements DriverInterface', get_class($this))
+                sprintf('%s needs a driver that implements DriverInterface', static::class)
             );
         }
 
@@ -219,7 +219,7 @@ trait ConnectionTrait
      */
     public function beginTransaction()
     {
-        if (0 !== $this->getTransactionNestingLevel()) {
+        if ($this->getTransactionNestingLevel() !== 0) {
             return parent::beginTransaction();
         }
 
@@ -237,7 +237,7 @@ trait ConnectionTrait
                     $this->_driver->isGoneAwayException($e)
                 ) {
                     $this->close();
-                    if (0 < $this->getTransactionNestingLevel()) {
+                    if ($this->getTransactionNestingLevel() > 0) {
                         $this->resetTransactionNestingLevel();
                     }
                     ++$attempt;
@@ -264,18 +264,6 @@ trait ConnectionTrait
     public function prepare($sql)
     {
         return $this->prepareWrapped($sql);
-    }
-
-    /**
-     * returns a reconnect-wrapper for Statements.
-     *
-     * @param $sql
-     *
-     * @return Statement
-     */
-    protected function prepareWrapped(string $sql): Driver\Statement
-    {
-        return new Statement($sql, $this);
     }
 
     /**
@@ -317,7 +305,7 @@ trait ConnectionTrait
         $canByAttempt = ($attempt < $this->reconnectAttempts);
         $ignoreTransactionLevel = $this->forceIgnoreTransactionLevel ? true : $ignoreTransactionLevel;
 
-        $canByTransactionNestingLevel = $ignoreTransactionLevel ? true : 0 === $this->getTransactionNestingLevel();
+        $canByTransactionNestingLevel = $ignoreTransactionLevel ? true : $this->getTransactionNestingLevel() === 0;
 
         return $canByAttempt && $canByTransactionNestingLevel;
     }
@@ -330,11 +318,33 @@ trait ConnectionTrait
      */
     public function isRetryableException(Throwable $e, string $query = null): bool
     {
-        if (null === $query || $this->isUpdateQuery($query)) {
+        if ($query === null || $this->isUpdateQuery($query)) {
             return $this->_driver->isGoneAwayInUpdateException($e);
         }
 
         return $this->_driver->isGoneAwayException($e);
+    }
+
+    /**
+     * @param string $query
+     *
+     * @return bool
+     */
+    public function isUpdateQuery($query): bool
+    {
+        return ! preg_match('/^[\s\n\r\t(]*(select|show|describe)[\s\n\r\t(]+/i', $query);
+    }
+
+    /**
+     * returns a reconnect-wrapper for Statements.
+     *
+     * @param $sql
+     *
+     * @return Statement
+     */
+    protected function prepareWrapped(string $sql): Driver\Statement
+    {
+        return new Statement($sql, $this);
     }
 
     /**
@@ -347,7 +357,7 @@ trait ConnectionTrait
      */
     private function resetTransactionNestingLevel(): void
     {
-        if (!$this->selfReflectionNestingLevelProperty instanceof ReflectionProperty) {
+        if (! $this->selfReflectionNestingLevelProperty instanceof ReflectionProperty) {
             $reflection = new ReflectionClass(DBALConnection::class);
 
             // Private property has been renamed in DBAL 2.9.0+
@@ -361,15 +371,5 @@ trait ConnectionTrait
         }
 
         $this->selfReflectionNestingLevelProperty->setValue($this, 0);
-    }
-
-    /**
-     * @param string $query
-     *
-     * @return bool
-     */
-    public function isUpdateQuery($query): bool
-    {
-        return !preg_match('/^[\s\n\r\t(]*(select|show|describe)[\s\n\r\t(]+/i', $query);
     }
 }

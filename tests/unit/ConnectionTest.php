@@ -113,7 +113,7 @@ class ConnectionTest extends TestCase
      */
     public function testIsUpdateQuery($query, $expected)
     {
-        static::assertEquals($expected, $this->connection->isUpdateQuery($query));
+        static::assertSame($expected, $this->connection->isUpdateQuery($query));
     }
 
     public function isUpdateQueryDataProvider()
