@@ -1,6 +1,8 @@
 <?php
 
-namespace Facile\DoctrineMySQLComeBack\Doctrine\DBAL;
+declare(strict_types=1);
+
+namespace Adgoal\DBALFaultTolerance;
 
 use Doctrine\DBAL\Statement as DBALStatement;
 use Mockery;
@@ -16,14 +18,14 @@ class StatementBindValueTest extends TestCase
      *
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function test_bind_value_to_statement($arg1, $arg2, $arg3, $return)
+    public function testBindValueToStatement($arg1, $arg2, $arg3, $return)
     {
         $statmentFake = $this->getDBALStatementMock($return);
         $statment = new Statement('SELECT 1', $this->getConnectionMock($statmentFake));
 
-        $this->assertEquals($return, $statment->bindValue($arg1, $arg2, $arg3));
-        $this->assertEquals($return, $statment->bindParam($arg1, $arg2, $arg3));
-        $this->assertEquals($return, $statment->setFetchMode($arg1, $arg2, $arg3));
+        $this->assertSame($return, $statment->bindValue($arg1, $arg2, $arg3));
+        $this->assertSame($return, $statment->bindParam($arg1, $arg2, $arg3));
+        $this->assertSame($return, $statment->setFetchMode($arg1, $arg2, $arg3));
     }
 
     /**
@@ -50,17 +52,6 @@ class StatementBindValueTest extends TestCase
         return $mock;
     }
 
-    private function getConnectionMock($return)
-    {
-        $mock = Mockery::mock(Connection::class);
-        $mock
-            ->shouldReceive('prepareUnwrapped')
-            ->times(1)
-            ->andReturn($return);
-
-        return $mock;
-    }
-
     /**
      * @return array
      */
@@ -80,5 +71,16 @@ class StatementBindValueTest extends TestCase
                 false,
             ],
         ];
+    }
+
+    private function getConnectionMock($return)
+    {
+        $mock = Mockery::mock(Connection::class);
+        $mock
+            ->shouldReceive('prepareUnwrapped')
+            ->times(1)
+            ->andReturn($return);
+
+        return $mock;
     }
 }

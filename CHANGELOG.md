@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.9] - 2019-09-10
+  #13 Change namespace
+ * Refactoring phpunit
+ * add git log to travis
+ * add ecs to travis
+ * change pkg name
+
+## [1.8.1] - 2019-09-06
+  #7 refactoring logger
+
+## [1.8] - 2019-09-06
+  #2 add retry id instance readonly
+  #3 add force_ignore_transaction_level property
+  #4 add retry when Lost connection and Deadlock
+  #6 add logging
 
 ## [1.7] - 2019-02-05
 ### Fixed

@@ -1,17 +1,18 @@
 <?php
 
-namespace Facile\DoctrineMySQLComeBack\Doctrine\DBAL;
+declare(strict_types=1);
 
+namespace Adgoal\DBALFaultTolerance;
+
+use Adgoal\DBALFaultTolerance\Driver\DriverInterface;
+use Adgoal\DBALFaultTolerance\Events\Args\ReconnectEventArgs;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Configuration;
-use Doctrine\DBAL\Connection as DBALConnection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
-use Exception;
-use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Driver\ServerGoneAwayExceptionsAwareInterface;
-use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Events\Args\ReconnectEventArgs;
-use InvalidArgumentException;
+use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Exception\InvalidArgumentException;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionProperty;
@@ -22,22 +23,38 @@ use Throwable;
  */
 trait ConnectionTrait
 {
-    /** @var int */
+    /**
+     * The used DBAL driver.
+     *
+     *  Overwrite for type hint
+     *
+     * @var DriverInterface
+     */
+    protected $_driver;
+
+    /**
+     * @var int
+     */
     protected $reconnectAttempts = 0;
 
-    /** @var ReflectionProperty|null */
-    private $selfReflectionNestingLevelProperty;
-
-    /** @var bool */
+    /**
+     * @var int|bool
+     */
     protected $forceIgnoreTransactionLevel;
 
     /**
-     * @param array                                         $params
-     * @param Driver|ServerGoneAwayExceptionsAwareInterface $driver
-     * @param Configuration                                 $config
-     * @param EventManager                                  $eventManager
+     * @var ReflectionProperty|null
+     */
+    private $selfReflectionNestingLevelProperty;
+
+    /**
+     * ConnectionTrait constructor.
      *
-     * @throws InvalidArgumentException
+     * @param mixed[]            $params
+     * @param Driver             $driver
+     * @param Configuration|null $config
+     * @param EventManager|null  $eventManager
+     *
      * @throws DBALException
      */
     public function __construct(
@@ -46,9 +63,9 @@ trait ConnectionTrait
         Configuration $config = null,
         EventManager $eventManager = null
     ) {
-        if (!$driver instanceof ServerGoneAwayExceptionsAwareInterface) {
+        if (! $driver instanceof DriverInterface) {
             throw new InvalidArgumentException(
-                sprintf('%s needs a driver that implements ServerGoneAwayExceptionsAwareInterface', get_class($this))
+                sprintf('%s needs a driver that implements DriverInterface', static::class)
             );
         }
 
@@ -69,9 +86,8 @@ trait ConnectionTrait
      * @param array             $types
      * @param QueryCacheProfile $qcp
      *
-     * @return \Doctrine\DBAL\Driver\Statement the executed statement
+     * @return ResultStatement the executed statement
      *
-     * @throws Exception
      * @throws Throwable
      */
     public function executeQuery($query, array $params = [], $types = [], QueryCacheProfile $qcp = null)
@@ -84,7 +100,7 @@ trait ConnectionTrait
 
             try {
                 $stmt = parent::executeQuery($query, $params, $types, $qcp);
-            } catch (Exception $e) {
+            } catch (Throwable $e) {
                 if ($this->canTryAgain($attempt) && $this->isRetryableException($e, $query)) {
                     $this->close();
                     ++$attempt;
@@ -106,7 +122,7 @@ trait ConnectionTrait
     /**
      * @return \Doctrine\DBAL\Driver\Statement
      *
-     * @throws Exception
+     * @throws Throwable
      */
     public function query()
     {
@@ -138,7 +154,7 @@ trait ConnectionTrait
                     default:
                         $stmt = parent::query();
                 }
-            } catch (Exception $e) {
+            } catch (Throwable $e) {
                 if ($this->canTryAgain($attempt) && $this->isRetryableException($e, $args[0])) {
                     $this->close();
                     ++$attempt;
@@ -164,7 +180,7 @@ trait ConnectionTrait
      *
      * @return int the number of affected rows
      *
-     * @throws Exception
+     * @throws Throwable
      */
     public function executeUpdate($query, array $params = [], array $types = [])
     {
@@ -176,7 +192,7 @@ trait ConnectionTrait
 
             try {
                 $stmt = parent::executeUpdate($query, $params, $types);
-            } catch (Exception $e) {
+            } catch (Throwable $e) {
                 if ($this->canTryAgain($attempt) && $this->isRetryableException($e)) {
                     $this->close();
                     ++$attempt;
@@ -196,12 +212,14 @@ trait ConnectionTrait
     }
 
     /**
+     * @return bool|void
+     *
      * @throws ReflectionException
      * @throws Throwable
      */
     public function beginTransaction()
     {
-        if (0 !== $this->getTransactionNestingLevel()) {
+        if ($this->getTransactionNestingLevel() !== 0) {
             return parent::beginTransaction();
         }
 
@@ -213,9 +231,13 @@ trait ConnectionTrait
             try {
                 parent::beginTransaction();
             } catch (Throwable $e) {
-                if ($this->canTryAgain($attempt, true) && $this->_driver->isGoneAwayException($e)) {
+                if (
+                    $this->canTryAgain($attempt, true)
+                    &&
+                    $this->_driver->isGoneAwayException($e)
+                ) {
                     $this->close();
-                    if (0 < $this->getTransactionNestingLevel()) {
+                    if ($this->getTransactionNestingLevel() > 0) {
                         $this->resetTransactionNestingLevel();
                     }
                     ++$attempt;
@@ -233,29 +255,15 @@ trait ConnectionTrait
     }
 
     /**
-     * @param $sql
+     * Prepares an SQL statement.
      *
-     * @return Statement
+     * @param string $sql
      *
-     * @throws DBALException
+     * @return Statement the prepared statement
      */
     public function prepare($sql)
     {
         return $this->prepareWrapped($sql);
-    }
-
-    /**
-     * returns a reconnect-wrapper for Statements.
-     *
-     * @param $sql
-     *
-     * @return Statement
-     *
-     * @throws DBALException
-     */
-    protected function prepareWrapped($sql)
-    {
-        return new Statement($sql, $this);
     }
 
     /**
@@ -270,7 +278,7 @@ trait ConnectionTrait
      *
      * @internal
      */
-    public function prepareUnwrapped($sql)
+    public function prepareUnwrapped(string $sql): \Doctrine\DBAL\Driver\Statement
     {
         // returns the actual statement
         return parent::prepare($sql);
@@ -279,9 +287,9 @@ trait ConnectionTrait
     /**
      * Forces reconnection by doing a dummy query.
      *
-     * @throws Exception
+     * @throws Throwable
      */
-    public function refresh()
+    public function refresh(): void
     {
         $this->query('SELECT 1')->execute();
     }
@@ -292,25 +300,25 @@ trait ConnectionTrait
      *
      * @return bool
      */
-    public function canTryAgain($attempt, $ignoreTransactionLevel = false)
+    public function canTryAgain(int $attempt, bool $ignoreTransactionLevel = false): bool
     {
         $canByAttempt = ($attempt < $this->reconnectAttempts);
         $ignoreTransactionLevel = $this->forceIgnoreTransactionLevel ? true : $ignoreTransactionLevel;
 
-        $canByTransactionNestingLevel = $ignoreTransactionLevel ? true : 0 === $this->getTransactionNestingLevel();
+        $canByTransactionNestingLevel = $ignoreTransactionLevel ? true : $this->getTransactionNestingLevel() === 0;
 
         return $canByAttempt && $canByTransactionNestingLevel;
     }
 
     /**
-     * @param Exception   $e
+     * @param Throwable   $e
      * @param string|null $query
      *
      * @return bool
      */
-    public function isRetryableException(Exception $e, $query = null)
+    public function isRetryableException(Throwable $e, string $query = null): bool
     {
-        if (null === $query || $this->isUpdateQuery($query)) {
+        if ($query === null || $this->isUpdateQuery($query)) {
             return $this->_driver->isGoneAwayInUpdateException($e);
         }
 
@@ -318,16 +326,38 @@ trait ConnectionTrait
     }
 
     /**
+     * @param string $query
+     *
+     * @return bool
+     */
+    public function isUpdateQuery($query): bool
+    {
+        return ! preg_match('/^[\s\n\r\t(]*(select|show|describe)[\s\n\r\t(]+/i', $query);
+    }
+
+    /**
+     * returns a reconnect-wrapper for Statements.
+     *
+     * @param $sql
+     *
+     * @return Statement
+     */
+    protected function prepareWrapped(string $sql): Driver\Statement
+    {
+        return new Statement($sql, $this);
+    }
+
+    /**
      * This is required because beginTransaction increment transactionNestingLevel
      * before the real query is executed, and results incremented also on gone away error.
      * This should be safe for a new established connection.
      *
-     * @throws \ReflectionException
-     * @throws \ReflectionException
+     * @throws ReflectionException
+     * @throws ReflectionException
      */
-    private function resetTransactionNestingLevel()
+    private function resetTransactionNestingLevel(): void
     {
-        if (!$this->selfReflectionNestingLevelProperty instanceof ReflectionProperty) {
+        if (! $this->selfReflectionNestingLevelProperty instanceof ReflectionProperty) {
             $reflection = new ReflectionClass(DBALConnection::class);
 
             // Private property has been renamed in DBAL 2.9.0+
@@ -341,15 +371,5 @@ trait ConnectionTrait
         }
 
         $this->selfReflectionNestingLevelProperty->setValue($this, 0);
-    }
-
-    /**
-     * @param string $query
-     *
-     * @return bool
-     */
-    public function isUpdateQuery($query)
-    {
-        return !preg_match('/^[\s\n\r\t(]*(select|show|describe)[\s\n\r\t(]+/i', $query);
     }
 }

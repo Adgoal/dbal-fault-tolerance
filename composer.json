@@ -1,5 +1,5 @@
 {
-    "name": "adgoal/doctrine-mysql-come-back",
+    "name": "adgoal/dbal-fault-tolerance",
     "description": "Auto reconnect on Doctrine MySql has gone away exceptions on doctrine/dbal",
     "keywords": ["mysql","doctrine","reconnect","refresh","connection","has gone away","exception"],
     "license": "Apache-2.0",
@@ -7,10 +7,14 @@
         {
             "name": "Luca Bo",
             "email": "luca.boeri@facile.it"
+        },
+        {
+            "name": "Andru Cherny",
+            "homepage": "https://github.com/wirwolf"
         }
     ],
     "require": {
-        "php" : "^7.0",
+        "php" : "^7.1",
         "ext-pdo": "*",
         "doctrine/dbal": "^2.3",
         "psr/log": "^1.0"
@@ -28,10 +32,10 @@
 
     },
     "autoload": {
-        "psr-4": { "Facile\\DoctrineMySQLComeBack\\Doctrine\\DBAL\\": "src/" }
+        "psr-4": { "Adgoal\\DBALFaultTolerance\\": "src/" }
     },
     "autoload-dev": {
-        "psr-4": { "Facile\\DoctrineMySQLComeBack\\Doctrine\\DBAL\\": "tests/unit/" }
+        "psr-4": { "Adgoal\\DBALFaultTolerance\\": "tests/unit/" }
     },
     "config": {
         "preferred-install": "dist"

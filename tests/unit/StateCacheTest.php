@@ -1,6 +1,8 @@
 <?php
 
-namespace Facile\DoctrineMySQLComeBack\Doctrine\DBAL;
+declare(strict_types=1);
+
+namespace Adgoal\DBALFaultTolerance;
 
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\DBALException;
@@ -18,11 +20,11 @@ class StateCacheTest extends TestCase
     use MockeryPHPUnitIntegration;
 
     /**
-     * @covers \Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Statement
+     * @covers \Adgoal\DBALFaultTolerance\Statement
      *
      * @throws DBALException
      */
-    public function test_state_cache_only_changed_on_success()
+    public function testStateCacheOnlyChangedOnSuccess()
     {
         $sql = 'SELECT :value, :param';
 

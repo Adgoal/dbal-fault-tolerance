@@ -1,27 +1,33 @@
 <?php
 
-namespace Facile\DoctrineMySQLComeBack\Doctrine\DBAL;
+declare(strict_types=1);
 
+namespace Adgoal\DBALFaultTolerance;
+
+use Adgoal\DBALFaultTolerance\Driver\DriverInterface;
+use Adgoal\DBALFaultTolerance\Driver\PDOMySql\Driver;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
-use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Driver\ServerGoneAwayExceptionsAwareInterface;
-use InvalidArgumentException;
+use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;
 
 class ConnectionTest extends TestCase
 {
-    /** @var Connection */
+    use MockeryPHPUnitIntegration;
+
+    /**
+     * @var Connection
+     */
     protected $connection;
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     protected function setUp()
     {
-        $driver = $this->prophesize(Driver::class)
-            ->willImplement(ServerGoneAwayExceptionsAwareInterface::class);
+        $driver = $this->prophesize(Driver::class)->willImplement(DriverInterface::class);
         $configuration = $this->prophesize(Configuration::class);
         $eventManager = $this->prophesize(EventManager::class);
         $platform = $this->prophesize(AbstractPlatform::class);
@@ -44,12 +50,11 @@ class ConnectionTest extends TestCase
     }
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public function testConstructor()
     {
-        $driver = $this->prophesize(Driver::class)
-            ->willImplement(ServerGoneAwayExceptionsAwareInterface::class);
+        $driver = $this->prophesize(Driver::class)->willImplement(DriverInterface::class);
         $configuration = $this->prophesize(Configuration::class);
         $eventManager = $this->prophesize(EventManager::class);
         $platform = $this->prophesize(AbstractPlatform::class);
@@ -74,11 +79,10 @@ class ConnectionTest extends TestCase
     }
 
     /**.
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public function testConstructorWithInvalidDriver()
     {
-        $this->expectException(InvalidArgumentException::class);
         $driver = $this->prophesize(Driver::class);
         $configuration = $this->prophesize(Configuration::class);
         $eventManager = $this->prophesize(EventManager::class);
@@ -109,7 +113,7 @@ class ConnectionTest extends TestCase
      */
     public function testIsUpdateQuery($query, $expected)
     {
-        static::assertEquals($expected, $this->connection->isUpdateQuery($query));
+        static::assertSame($expected, $this->connection->isUpdateQuery($query));
     }
 
     public function isUpdateQueryDataProvider()

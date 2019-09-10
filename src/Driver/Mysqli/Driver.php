@@ -1,14 +1,15 @@
 <?php
 
-namespace Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Driver\Mysqli;
+namespace Adgoal\DBALFaultTolerance\Driver\Mysqli;
 
-use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Driver\ServerGoneAwayExceptionsAwareInterface;
-use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Driver\ServerGoneAwayExceptionsAwareTrait;
+use Adgoal\DBALFaultTolerance\Driver\DriverInterface;
+use Adgoal\DBALFaultTolerance\Driver\ServerGoneAwayExceptionsAwareTrait;
+use Doctrine\DBAL\DBALException;
 
 /**
  * Class Driver.
  */
-class Driver extends \Doctrine\DBAL\Driver\Mysqli\Driver implements ServerGoneAwayExceptionsAwareInterface
+class Driver extends \Doctrine\DBAL\Driver\Mysqli\Driver implements DriverInterface
 {
     use ServerGoneAwayExceptionsAwareTrait;
 
@@ -22,7 +23,7 @@ class Driver extends \Doctrine\DBAL\Driver\Mysqli\Driver implements ServerGoneAw
     /**
      * {@inheritdoc}
      *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
     {

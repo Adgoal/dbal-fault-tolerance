@@ -1,6 +1,6 @@
 .PHONY: style
 style: ## executes php analizers
-	./vendor/bin/phpstan analyse -l 6 -c phpstan.neon src tests
+	./vendor/bin/phpstan analyse -l 6 -c phpstan.neon src
 
 .PHONY: lint
 lint: ## checks syntax of PHP files

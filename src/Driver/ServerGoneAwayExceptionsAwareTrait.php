@@ -1,8 +1,8 @@
 <?php
 
-namespace Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Driver;
+namespace Adgoal\DBALFaultTolerance\Driver;
 
-use Exception;
+use Throwable;
 
 /**
  * Trait ServerGoneAwayExceptionsAwareTrait.
@@ -30,16 +30,16 @@ trait ServerGoneAwayExceptionsAwareTrait
     ];
 
     /**
-     * @param Exception $exception
+     * @param Throwable $exception
      *
      * @return bool
      */
-    public function isGoneAwayException(Exception $exception)
+    public function isGoneAwayException(Throwable $exception): bool
     {
         $message = $exception->getMessage();
 
         foreach ($this->goneAwayExceptions as $goneAwayException) {
-            if (false !== stripos($message, $goneAwayException)) {
+            if (stripos($message, $goneAwayException) !== false) {
                 return true;
             }
         }
@@ -48,16 +48,16 @@ trait ServerGoneAwayExceptionsAwareTrait
     }
 
     /**
-     * @param Exception $exception
+     * @param Throwable $exception
      *
      * @return bool
      */
-    public function isGoneAwayInUpdateException(Exception $exception)
+    public function isGoneAwayInUpdateException(Throwable $exception): bool
     {
         $message = $exception->getMessage();
 
         foreach ($this->goneAwayInUpdateExceptions as $goneAwayException) {
-            if (false !== stripos($message, $goneAwayException)) {
+            if (stripos($message, $goneAwayException) !== false) {
                 return true;
             }
         }

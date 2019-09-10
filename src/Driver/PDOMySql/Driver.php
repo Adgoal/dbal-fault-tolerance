@@ -1,14 +1,14 @@
 <?php
 
-namespace Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Driver\PDOMySql;
+namespace Adgoal\DBALFaultTolerance\Driver\PDOMySql;
 
-use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Driver\ServerGoneAwayExceptionsAwareInterface;
-use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Driver\ServerGoneAwayExceptionsAwareTrait;
+use Adgoal\DBALFaultTolerance\Driver\DriverInterface;
+use Adgoal\DBALFaultTolerance\Driver\ServerGoneAwayExceptionsAwareTrait;
 
 /**
  * Class Driver.
  */
-class Driver extends \Doctrine\DBAL\Driver\PDOMySql\Driver implements ServerGoneAwayExceptionsAwareInterface
+class Driver extends \Doctrine\DBAL\Driver\PDOMySql\Driver implements DriverInterface
 {
     use ServerGoneAwayExceptionsAwareTrait;
 }

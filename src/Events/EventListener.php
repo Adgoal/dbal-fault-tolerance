@@ -1,9 +1,11 @@
 <?php
 
-namespace Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Events;
+declare(strict_types=1);
 
+namespace Adgoal\DBALFaultTolerance\Events;
+
+use Adgoal\DBALFaultTolerance\Events\Args\ReconnectEventArgs;
 use Doctrine\Common\EventSubscriber;
-use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Events\Args\ReconnectEventArgs;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -26,7 +28,7 @@ class EventListener implements EventSubscriber
      *
      * @return string[]
      */
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             Events::RECONNECT_TO_DATABASE,
@@ -36,7 +38,7 @@ class EventListener implements EventSubscriber
     /**
      * @param ReconnectEventArgs $args
      */
-    public function reconnectToDatabase(ReconnectEventArgs $args)
+    public function reconnectToDatabase(ReconnectEventArgs $args): void
     {
         $this->logger->debug(
             '[DOCTRINE][{function}] Retrying query (attempt {attempt}): {query}',

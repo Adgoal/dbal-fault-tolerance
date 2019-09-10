@@ -1,6 +1,8 @@
 <?php
 
-namespace Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Events\Args;
+declare(strict_types=1);
+
+namespace Adgoal\DBALFaultTolerance\Events\Args;
 
 use Doctrine\Common\EventArgs;
 
@@ -48,7 +50,7 @@ class ReconnectEventArgs extends EventArgs
     /**
      * @return string
      */
-    public function getFunction()
+    public function getFunction(): string
     {
         return $this->function;
     }
@@ -56,7 +58,7 @@ class ReconnectEventArgs extends EventArgs
     /**
      * @return int
      */
-    public function getAttempt()
+    public function getAttempt(): int
     {
         return $this->attempt;
     }
@@ -64,7 +66,7 @@ class ReconnectEventArgs extends EventArgs
     /**
      * @return string
      */
-    public function getQuery()
+    public function getQuery(): string
     {
         return $this->query;
     }

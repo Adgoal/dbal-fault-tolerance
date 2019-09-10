@@ -1,13 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
+namespace Adgoal\DBALFaultTolerance;
+
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Statement as DcStatement;
-use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Connection;
-use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Statement;
+use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use Mockery\MockInterface;
+use PDO;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -22,38 +26,7 @@ class StatementTest extends TestCase
     /**
      * @throws DBALException
      */
-    public function test_construction()
-    {
-        $sql = 'SELECT 1';
-        $connection = $this->getConnectionMock([$sql], null, 1);
-
-        $statement = new Statement($sql, $connection);
-
-        $this->assertInstanceOf(Statement::class, $statement);
-    }
-
-    /**
-     * @param $arg
-     * @param $result
-     * @param $times
-     *
-     * @return Connection|\Mockery\LegacyMockInterface|MockInterface| Connection
-     */
-    private function getConnectionMock($arg, $result, $times)
-    {
-        $mock = Mockery::mock(Connection::class);
-        $mock->shouldReceive('prepareUnwrapped')
-            ->withArgs($arg)
-            ->times($times)
-            ->andReturn($result);
-
-        return $mock;
-    }
-
-    /**
-     * @throws DBALException
-     */
-    public function test_retry()
+    public function testRetry()
     {
         $sql = 'SELECT :param';
         /** @var DriverStatement|ObjectProphecy $driverStatement1 */
@@ -90,7 +63,7 @@ class StatementTest extends TestCase
     /**
      * @throws DBALException
      */
-    public function test_retry_with_state()
+    public function testRetryWithState()
     {
         $sql = 'SELECT :value, :param';
         /** @var DriverStatement|ObjectProphecy $driverStatement1 */
@@ -139,7 +112,7 @@ class StatementTest extends TestCase
     /**
      * @throws DBALException
      */
-    public function test_retry_fails()
+    public function testRetryFails()
     {
         $sql = 'SELECT 1';
         /** @var DriverStatement|ObjectProphecy $driverStatement1 */
@@ -183,7 +156,7 @@ class StatementTest extends TestCase
     /**
      * @throws DBALException
      */
-    public function test_execute()
+    public function testExecute()
     {
         $sql = 'SELECT 1';
 
@@ -198,7 +171,7 @@ class StatementTest extends TestCase
     /**
      * @throws DBALException
      */
-    public function test_execute_gone_away_not_retrayable()
+    public function testExecuteGoneAwayNotRetrayable()
     {
         $sql = 'SELECT 1';
         /** @var DcStatement|ObjectProphecy $dcStatement */
@@ -214,6 +187,24 @@ class StatementTest extends TestCase
 
         $this->expectException(\Throwable::class);
         $statement->execute(['test' => 1]);
+    }
+
+    /**
+     * @param $arg
+     * @param $result
+     * @param $times
+     *
+     * @return Connection|\Mockery\LegacyMockInterface|MockInterface| Connection
+     */
+    private function getConnectionMock($arg, $result, $times)
+    {
+        $mock = Mockery::mock(Connection::class);
+        $mock->shouldReceive('prepareUnwrapped')
+            ->withArgs($arg)
+            ->times($times)
+            ->andReturn($result);
+
+        return $mock;
     }
 
     /**
