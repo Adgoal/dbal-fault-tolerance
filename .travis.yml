@@ -5,9 +5,6 @@ php:
   - 7.1
   - 7.2
   - 7.3
-env:
-  - COMPOSER_FLAGS="--prefer-lowest"
-  - COMPOSER_FLAGS=""
 
 matrix:
   fast_finish: true
@@ -24,7 +21,7 @@ before_install:
   - composer self-update
 
 install:
-  - composer update --prefer-dist --no-interaction ${COMPOSER_FLAGS}
+  - composer update --prefer-dist --no-interaction
 
 script:
   - vendor/bin/parallel-lint ./ --exclude vendor
