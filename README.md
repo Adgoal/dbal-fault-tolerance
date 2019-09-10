@@ -7,7 +7,7 @@
 [![Test coverage](https://scrutinizer-ci.com/g/adgoal/doctrine-mysql-come-back/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/adgoal/doctrine-mysql-come-back/?branch=master)
 
 [![License](https://poser.pugx.org/adgoal/doctrine-mysql-come-back/license.svg)](https://packagist.org/packages/adgoal/doctrine-mysql-come-back)
-# DoctrineMySQLComeBack
+# DBALFaultTolerance
 
 Auto reconnect on Doctrine MySql has gone away exceptions on doctrine/dbal >=2.3, <3.0.
 
@@ -19,7 +19,7 @@ $ composer require adgoal/doctrine-mysql-come-back ^1.7
 
 # Configuration
 
-In order to use DoctrineMySQLComeBack you have to set `wrapperClass` and `driverClass` connection params.
+In order to use DBALFaultTolerance you have to set `wrapperClass` and `driverClass` connection params.
 You can choose how many times Doctrine should be able to reconnect, setting `x_reconnect_attempts` driver option. Its value should be an int.
 
 You can force ignore the transaction level using the parameters : `force_ignore_transaction_level`.
@@ -40,8 +40,8 @@ $connectionParams = array(
     'password' => 'secret',
     'host' => 'localhost',
     // [doctrine-mysql-come-back] settings
-    'wrapperClass' => Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Connection::class,
-    'driverClass' => Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Driver\PDOMySql\Driver:class,
+    'wrapperClass' => Adgoal\DBALFaultTolerance\Connection::class,
+    'driverClass' => Adgoal\DBALFaultTolerance\Driver\PDOMySql\Driver:class,
     'driverOptions' => [
         'x_reconnect_attempts' => 3,
         'force_ignore_transaction_level' => true
@@ -68,8 +68,8 @@ doctrine:
                 user:     %database_user%
                 password: %database_password%
                 charset:  UTF8
-                wrapper_class: 'Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Connection'
-                driver_class: 'Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Driver\PDOMySql\Driver'
+                wrapper_class: 'Adgoal\DBALFaultTolerance\Connection'
+                driver_class: 'Adgoal\DBALFaultTolerance\Driver\PDOMySql\Driver'
                 options:
                     x_reconnect_attempts: 3
 ```
@@ -81,8 +81,8 @@ return [
     'doctrine' => [
         'connection' => [
             'orm_default' => [
-                'driverClass' => \Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Driver\PDOMySql\Driver::class,
-                'wrapperClass' => \Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Connection::class,
+                'driverClass' => \Adgoal\DBALFaultTolerance\Driver\PDOMySql\Driver::class,
+                'wrapperClass' => \Adgoal\DBALFaultTolerance\Connection::class,
                 'params' => [
                     'host' => 'localhost',
                     'port' => '3307',
@@ -101,7 +101,7 @@ return [
 ];
 ```
 
-You can use wrapper class `Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Connections\MasterSlaveConnection` if you are 
+You can use wrapper class `Adgoal\DBALFaultTolerance\Connections\MasterSlaveConnection` if you are 
 using master / slave Doctrine configuration.
 
 # Usage

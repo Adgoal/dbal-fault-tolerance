@@ -1,8 +1,13 @@
 <?php
 
-namespace Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Events;
+declare(strict_types=1);
 
+namespace Adgoal\DBALFaultTolerance\Events;
+
+/**
+ * Class Events.
+ */
 class Events
 {
-    const RECONNECT_TO_DATABASE = 'reconnectToDatabase';
+    public const RECONNECT_TO_DATABASE = 'reconnectToDatabase';
 }

@@ -1,10 +1,10 @@
 <?php
 
-namespace Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Connections;
+namespace Adgoal\DBALFaultTolerance\Connections;
 
+use Adgoal\DBALFaultTolerance\ConnectionInterface;
+use Adgoal\DBALFaultTolerance\ConnectionTrait;
 use Doctrine\DBAL\Connections\MasterSlaveConnection as DBALMasterSlaveConnection;
-use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\ConnectionInterface;
-use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\ConnectionTrait;
 
 /**
  * Class MasterSlaveConnection.

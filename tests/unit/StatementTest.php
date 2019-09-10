@@ -1,13 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
+namespace Adgoal\DBALFaultTolerance;
+
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Statement as DcStatement;
-use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Connection;
-use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Statement;
+use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use Mockery\MockInterface;
+use PDO;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -18,19 +22,6 @@ use Prophecy\Prophecy\ObjectProphecy;
 class StatementTest extends TestCase
 {
     use MockeryPHPUnitIntegration;
-
-    /**
-     * @throws DBALException
-     */
-    public function test_construction()
-    {
-        $sql = 'SELECT 1';
-        $connection = $this->getConnectionMock([$sql], null, 1);
-
-        $statement = new Statement($sql, $connection);
-
-        $this->assertInstanceOf(Statement::class, $statement);
-    }
 
     /**
      * @param $arg

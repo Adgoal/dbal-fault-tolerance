@@ -27,7 +27,10 @@ install:
   - composer update --prefer-dist --no-interaction ${COMPOSER_FLAGS}
 
 script:
+  - vendor/bin/parallel-lint ./ --exclude vendor
+  - vendor/bin/ecs check src tests
   - if [[ $TEST_COVERAGE ]]; then phpdbg -qrr vendor/bin/phpunit --coverage-clover clover.xml; else vendor/bin/phpunit; fi;
+  - git log $(git describe --abbrev=0 --tags)...HEAD --no-merges --pretty=format:"* [%h](http://github.com/${TRAVIS_REPO_SLUG}/commit/%H) %s (%cN)"
 
 
 after_success:

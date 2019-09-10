@@ -1,12 +1,14 @@
 <?php
 
-namespace Facile\DoctrineMySQLComeBack\Doctrine\DBAL;
+declare(strict_types=1);
 
+namespace Adgoal\DBALFaultTolerance;
+
+use Adgoal\DBALFaultTolerance\Events\Args\ReconnectEventArgs;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
-use Exception;
-use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Events\Args\ReconnectEventArgs;
 use IteratorAggregate;
 use PDO;
+use Throwable;
 use Traversable;
 
 /**
@@ -25,7 +27,7 @@ class Statement implements IteratorAggregate, DriverStatement
     protected $stmt;
 
     /**
-     * @var Connection
+     * @var ConnectionInterface
      */
     protected $conn;
 
@@ -45,12 +47,12 @@ class Statement implements IteratorAggregate, DriverStatement
     private $fetchMode;
 
     /**
-     * @param $sql
-     * @param ConnectionInterface $conn
+     * Statement constructor.
      *
-     * @throws \Doctrine\DBAL\DBALException
+     * @param string              $sql
+     * @param ConnectionInterface $conn
      */
-    public function __construct($sql, ConnectionInterface $conn)
+    public function __construct(string $sql, ConnectionInterface $conn)
     {
         $this->sql = $sql;
         $this->conn = $conn;
@@ -59,8 +61,6 @@ class Statement implements IteratorAggregate, DriverStatement
 
     /**
      * Create Statement.
-     *
-     * @throws \Doctrine\DBAL\DBALException
      */
     private function createStatement()
     {
@@ -89,7 +89,7 @@ class Statement implements IteratorAggregate, DriverStatement
      *
      * @return bool
      *
-     * @throws Exception
+     * @throws Throwable
      */
     public function execute($params = null)
     {
@@ -101,7 +101,7 @@ class Statement implements IteratorAggregate, DriverStatement
 
             try {
                 $stmt = $this->stmt->execute($params);
-            } catch (Exception $e) {
+            } catch (Throwable $e) {
                 if (
                     $this->conn->canTryAgain($attempt)
                     &&
