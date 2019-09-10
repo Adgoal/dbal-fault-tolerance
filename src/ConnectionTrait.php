@@ -358,7 +358,7 @@ trait ConnectionTrait
     private function resetTransactionNestingLevel(): void
     {
         if (! $this->selfReflectionNestingLevelProperty instanceof ReflectionProperty) {
-            $reflection = new ReflectionClass(DBALConnection::class);
+            $reflection = new ReflectionClass(\Doctrine\DBAL\Connection::class);
 
             // Private property has been renamed in DBAL 2.9.0+
             if ($reflection->hasProperty('transactionNestingLevel')) {
