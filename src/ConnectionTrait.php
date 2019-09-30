@@ -110,9 +110,9 @@ trait ConnectionTrait
                         Events\Events::RECONNECT_TO_DATABASE,
                         new ReconnectEventArgs(__FUNCTION__, $attempt, $query)
                     );
+                } else {
+                    throw $e;
                 }
-
-                throw $e;
             }
         }
 
